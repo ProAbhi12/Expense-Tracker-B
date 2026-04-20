@@ -1,6 +1,17 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Wallet, CreditCard, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
+const incomeExpenseData = [
+  { name: "Income", value: 10000 },
+  { name: "Expense", value: 5000 },
+];
+
+const renderPercentLabel = ({ percent }) =>
+  `${(percent * 100).toFixed(0)}%`;
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const INCOLORS = ["#0072fd", "#d4295f"];
 const Dashboard = () => {
   return (
     <div className="space-y-6 pb-8">
@@ -53,6 +64,53 @@ const Dashboard = () => {
           <p className="text-red-600 text-xs font-medium mt-2">-Rs. 120 from last month</p>
         </div>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer>
+              
+              <PieChart>
+                  <text
+                  x="50%"
+                  y="10%"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  style={{ fontSize: "16px", fontWeight: "bold" }}
+                >
+                  Expense & Income Chart
+                </text>
+                <Pie
+                  data={incomeExpenseData}
+                  cx="50%"
+                  cy="50%"
+                  label={renderPercentLabel}
+                  outerRadius={100}
+                  dataKey="value"
+                  
+                >
+                  {incomeExpenseData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={INCOLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+
+                <Tooltip
+                formatter={(value, name, props) => {
+                  const total = incomeExpenseData.reduce((sum, e) => sum + e.value, 0);
+                  const percent = ((value / total) * 100).toFixed(1);
+                  return [`${value} (${percent}%)`, name];
+                }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+
+          </div>
+        </div>
+
+      </div>
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gray-50 p-8 rounded-xl border border-gray-200 border-dashed flex flex-col items-center justify-center text-center">
