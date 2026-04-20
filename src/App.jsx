@@ -3,8 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
-import Categories from "./pages/Categories";
-import { ThemeProvider } from "./ThemeContext";
+import Budgets from "./pages/Category";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -15,16 +15,9 @@ function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route
           path="categories"
-          element={<Categories />}
+          element={<Budgets />}
         />
-        <Route
-          path="reports"
-          element={
-            <div className="p-8 text-center text-gray-500 italic">
-              Reports UI{" "}
-            </div>
-          }
-        />
+        <Route path="reports" element={<Reports />} />
         <Route
           path="settings"
           element={
