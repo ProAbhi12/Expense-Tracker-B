@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import TransactionTable from './components/TransactionTable';
-import TransactionFilters from './components/TransactionFilters';
+import TransactionTable from '../components/TransactionTable';
+import TransactionFilters from '../components/TransactionFilters';
 
 const mockTransactions = [
   {
@@ -35,7 +35,7 @@ const mockTransactions = [
   }
 ];
 
-export default function TransactionsPage() {
+export default function Transactions() {
   const [transactions] = useState(mockTransactions);
   const [filterType, setFilterType] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");

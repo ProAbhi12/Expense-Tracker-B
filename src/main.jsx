@@ -2,10 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import TransactionsPage from "./TransactionsPage.jsx";
+import TransactionsPage from "./pages/Transactions.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <TransactionsPage/>
+    <App/>
   </StrictMode>,
 );
