@@ -1,62 +1,42 @@
-import React, { useMemo } from "react";
-import {
-  PieChart,
-  Pie,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import React from "react";
+import { useTheme } from "../context/ThemeContext";
 
-// ---------- Static Mock Data ----------
-const mockTransactions = [
-  {
-    id: 1,
-    name: "Salary Deposit",
-    type: "INCOME",
-    category: { name: "Salary" },
-    source: "Company XYZ",
-    reason: "MOBILE_BANKING",
-    date: "2026-04-15",
-    amount: 45000,
-  },
-  {
-    id: 2,
-    name: "Monthly Grocery",
-    type: "EXPENSE",
-    category: { name: "Food" },
-    source: "Big Mart",
-    reason: "CASH",
-    date: "2026-04-18",
-    amount: 8500,
-  },
-  {
-    id: 3,
-    name: "Internet Bill",
-    type: "EXPENSE",
-    category: { name: "Utilities" },
-    source: "Vianet",
-    reason: "ESEWA",
-    date: "2026-04-17",
-    amount: 1200,
-  },
-  {
-    id: 4,
-    name: "Freelance Payment",
-    type: "INCOME",
-    category: { name: "Freelance" },
-    source: "Upwork Client",
-    reason: "BANK_TRANSFER",
-    date: "2026-04-19",
-    amount: 15000,
-  },
-];
+const Reports = () => {
+  const { dark } = useTheme();
+
+  // Same mock transactions from Transactions.jsx
+  const mockTransactions = [
+    {
+      id: 1,
+      name: "Salary Deposit",
+      type: "INCOME",
+      category: { name: "Salary" },
+      source: "Company XYZ",
+      reason: "MOBILE_BANKING",
+      date: "2026-04-15",
+      amount: 45000,
+    },
+    {
+      id: 2,
+      name: "Monthly Grocery",
+      type: "EXPENSE",
+      category: { name: "Food" },
+      source: "Big Mart",
+      reason: "CASH",
+      date: "2026-04-18",
+      amount: 8500,
+    },
+    {
+      id: 3,
+      name: "Internet Bill",
+      type: "EXPENSE",
+      category: { name: "Utilities" },
+      source: "Vianet",
+      reason: "ESEWA",
+      date: "2026-04-17",
+      amount: 1200,
+    },
+  ];
 
 // ---------- Helper Functions ----------
 const formatCurrency = (value) => {
@@ -88,29 +68,25 @@ const getFinancialData = (transactions) => {
   return { totalIncome: income, totalExpenses: expenses, netBalance: income - expenses, expensesByCategory: byCategory };
 };
 
-// Color palettes
-const COLORS = ["#06b6d4", "#f43f5e"];
-const CATEGORY_COLORS = ["#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#ef4444"];
+  return (
+    <div className={`p-8 space-y-8 ${dark ? "bg-slate-900 min-h-screen" : ""}`}>
+      <h1 className={`text-3xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>Reports</h1>
 
-// Custom Tooltips
-const CustomPieTooltip = ({ active, payload }) => {
-  if (active && payload?.length) {
-    return (
-      <div className="bg-white p-2 rounded-lg shadow-lg border border-gray-200 text-xs font-semibold text-gray-800">
-        {payload[0].name}: {formatCurrency(payload[0].value)}
-      </div>
-    );
-  }
-  return null;
-};
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Income Card */}
+        <div className={`border-l-4 border-green-500 p-6 rounded-lg ${dark ? "bg-green-900/20" : "bg-green-50"}`}>
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Total Income</h3>
+          <p className="text-3xl font-bold text-green-600">
+            Rs. {totalIncome.toLocaleString()}
+          </p>
+        </div>
 
-const CustomBarTooltip = ({ active, payload }) => {
-  if (active && payload?.length) {
-    return (
-      <div className="bg-white p-2 rounded-lg shadow-lg border border-gray-200 space-y-1">
-        {payload.map((entry, idx) => (
-          <p key={idx} className="text-xs font-semibold" style={{ color: entry.fill }}>
-            {entry.name}: {formatCurrency(entry.value)}
+        {/* Expense Card */}
+        <div className={`border-l-4 border-red-500 p-6 rounded-lg ${dark ? "bg-red-900/20" : "bg-red-50"}`}>
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Total Expenses</h3>
+          <p className="text-3xl font-bold text-red-600">
+            Rs. {totalExpenses.toLocaleString()}
           </p>
         ))}
       </div>
@@ -119,93 +95,33 @@ const CustomBarTooltip = ({ active, payload }) => {
   return null;
 };
 
-// ---------- Main Component ----------
-const Reports = () => {
-  const { totalIncome, totalExpenses, netBalance, expensesByCategory } = useMemo(
-    () => getFinancialData(mockTransactions),
-    []
-  );
-
-  const pieData = [
-    { name: "Income", value: totalIncome },
-    { name: "Expenses", value: totalExpenses },
-  ];
-  const barData = [{ name: "Amount", Income: totalIncome, Expenses: totalExpenses }];
-  const categoryData = Object.entries(expensesByCategory).map(([name, value]) => ({ name, value }));
-  const hasExpenses = categoryData.length > 0;
-  const hasData = mockTransactions.length > 0;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-            Financial Reports
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Visualize your income and expenses with real-time insights
+        {/* Balance Card */}
+        <div
+          className={`border-l-4 p-6 rounded-lg ${netBalance >= 0 ? "border-blue-500" : "border-orange-500"} ${dark ? "bg-blue-900/20" : "bg-blue-50"}`}
+        >
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Net Balance</h3>
+          <p
+            className={`text-3xl font-bold ${netBalance >= 0 ? "text-blue-600" : "text-orange-600"}`}
+          >
+            Rs. {netBalance.toLocaleString()}
           </p>
         </div>
 
-        {!hasData ? (
-          <div className="text-center py-12 bg-white rounded-2xl shadow-md border border-gray-200">
-            <Wallet className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">No transactions yet. Add some to see reports.</p>
-          </div>
-        ) : (
-          <>
-            {/* Summary Cards - pure CSS hover */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Income Card */}
-              <div className="group relative rounded-2xl p-6 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-gray-700 font-semibold text-sm">Total Income</h3>
-                  <TrendingUp className="w-5 h-5 text-cyan-600" />
-                </div>
-                <p className="text-3xl font-bold text-cyan-600 mb-2">{formatCurrency(totalIncome)}</p>
-                <p className="text-xs text-cyan-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  ✓ All income sources combined
-                </p>
-              </div>
-
-              {/* Expense Card */}
-              <div className="group relative rounded-2xl p-6 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-400">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-gray-700 font-semibold text-sm">Total Expenses</h3>
-                  <TrendingDown className="w-5 h-5 text-rose-600" />
-                </div>
-                <p className="text-3xl font-bold text-rose-600 mb-2">{formatCurrency(totalExpenses)}</p>
-                <p className="text-xs text-rose-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  ✓ All expense transactions
-                </p>
-              </div>
-
-              {/* Balance Card */}
-              <div
-                className={`group relative rounded-2xl p-6 transition-all duration-300 hover:shadow-xl focus:outline-none focus:ring-2 ${
-                  netBalance >= 0 ? "focus:ring-emerald-400" : "focus:ring-amber-400"
-                } ${
-                  netBalance >= 0
-                    ? "bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200"
-                    : "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-gray-700 font-semibold text-sm">Net Balance</h3>
-                  <Wallet className={`w-5 h-5 ${netBalance >= 0 ? "text-emerald-600" : "text-amber-600"}`} />
-                </div>
-                <p className={`text-3xl font-bold mb-2 ${netBalance >= 0 ? "text-emerald-600" : "text-amber-600"}`}>
-                  {formatCurrency(netBalance)}
-                </p>
-                <p
-                  className={`text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                    netBalance >= 0 ? "text-emerald-700" : "text-amber-700"
-                  }`}
-                >
-                  {netBalance >= 0 ? "✓ You're in surplus" : "⚠ You're in deficit"}
-                </p>
-              </div>
+      {/* Expense Breakdown */}
+      <div className={`border rounded-lg p-6 ${dark ? "bg-slate-900 border-slate-700 shadow-[0_8px_24px_rgba(148,163,184,0.12)]" : "bg-white border-gray-200"}`}>
+        <h2 className={`text-xl font-bold mb-4 ${dark ? "text-slate-100" : "text-gray-800"}`}>
+          Expense Breakdown by Category
+        </h2>
+        <div className="space-y-3">
+          {Object.entries(expensesByCategory).map(([category, amount]) => (
+            <div
+              key={category}
+              className={`flex justify-between items-center p-3 rounded ${dark ? "bg-slate-800" : "bg-gray-50"}`}
+            >
+              <span className={dark ? "text-slate-300" : "text-gray-700"}>{category}</span>
+              <span className={`font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
+                Rs. {amount.toLocaleString()}
+              </span>
             </div>
 
             {/* Charts Section */}
