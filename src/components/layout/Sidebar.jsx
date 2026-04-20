@@ -41,11 +41,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       </div>
 
       <nav className="mt-4 px-3 space-y-1">
-        {menuItems.map((item) => {
+        {menuItems.map((item , index) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
-              key={item.name}
+              key={index}
               to={item.path}
               className={`flex items-center px-4 py-2.5 rounded-md transition-colors ${
                 isActive
