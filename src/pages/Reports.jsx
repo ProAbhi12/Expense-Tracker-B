@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const Reports = () => {
   // Same mock transactions from Transactions.jsx
