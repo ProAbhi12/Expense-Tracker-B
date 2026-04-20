@@ -4,10 +4,11 @@ import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
-
+import { ThemeProvider } from "./ThemeContext";
 
 function App() {
   return (
+    <ThemeProvider>
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
@@ -34,6 +35,7 @@ function App() {
         />
       </Route>
     </Routes>
+    </ThemeProvider>
   );
 }
 
