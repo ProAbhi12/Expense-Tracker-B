@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
-
+import Budgets from "./pages/Category";
 
 function App() {
   return (
@@ -13,11 +13,7 @@ function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route
           path="categories"
-          element={
-            <div className="p-8 text-center text-gray-500 italic">
-              Categories UI{" "}
-            </div>
-          }
+          element={<Budgets />}
         />
         <Route
           path="reports"
