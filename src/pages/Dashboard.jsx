@@ -324,6 +324,15 @@ const TransactionList = () => {
 // MAIN DASHBOARD COMPONENT
 // ============================================
 const Dashboard = () => {
+  const { dark } = useTheme();
+  const [trendRange, setTrendRange] = useState("monthly");
+  const cardShadowClasses = dark
+    ? "shadow-[0_8px_24px_rgba(148,163,184,0.12)] hover:shadow-[0_12px_30px_rgba(148,163,184,0.18)]"
+    : "shadow-sm hover:shadow-md";
+  const axisStroke = dark ? "#94a3b8" : "#64748b";
+  const gridStroke = dark ? "#334155" : "#e2e8f0";
+  const trendData = trendDataByRange[trendRange];
+
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
@@ -354,7 +363,7 @@ const Dashboard = () => {
         {/* Income Card */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-gray-500 text-sm font-medium">Monthly Income</p>
+            <p className={`text-sm font-medium ${dark ? "text-slate-400" : "text-gray-500"}`}>Monthly Income</p>
             <ArrowUpRight size={20} className="text-green-500" />
           </div>
           <h3 className="text-2xl font-bold text-gray-800">
@@ -390,6 +399,11 @@ const Dashboard = () => {
       {/* Transaction List - Full Width (Read Only) */}
       <div>
         <TransactionList />
+      </div>
+
+      {/* Transaction List - Full Width (Read Only) */}
+      <div>
+        <TransactionList dark={dark} />
       </div>
     </div>
   );
