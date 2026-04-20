@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TransactionTable from '../components/TransactionTable';
 import TransactionFilters from '../components/TransactionFilters';
+import AddTransactionModal from '../components/AddTransactionModal';   // Make sure this path is correct
 
 const mockTransactions = [
   {
@@ -32,11 +33,22 @@ const mockTransactions = [
     reason: "ESEWA",
     date: "2026-04-17",
     amount: 1200
+  },
+  {
+    id: 4,
+    name: "Freelance Payment",
+    type: "INCOME",
+    category: { name: "Freelance" },
+    source: "Upwork",
+    reason: "KHALTI",
+    date: "2026-04-16",
+    amount: 25000
   }
 ];
 
 export default function Transactions() {
-  const [transactions] = useState(mockTransactions);
+  const [transactions, setTransactions] = useState(mockTransactions);
+  const [isModalOpen, setIsModalOpen] = useState(false);        // ← This was missing!
   const [filterType, setFilterType] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -52,14 +64,18 @@ export default function Transactions() {
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  const handleAddTransaction = (newTx) => {
+    setTransactions(prev => [newTx, ...prev]);
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 min-h-screen bg-gray-50">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800">Transactions</h1>
         <button 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 font-medium"
-          onClick={() => alert("Add Transaction Modal will open here")}
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium shadow-sm"
         >
           + Add Transaction
         </button>
@@ -73,8 +89,15 @@ export default function Transactions() {
         setSearchTerm={setSearchTerm}
       />
 
-      {/* Transaction Table */}
+      {/* Table */}
       <TransactionTable transactions={filteredTransactions} />
+
+      {/* Modal */}
+      <AddTransactionModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddTransaction}
+      />
     </div>
   );
 }
