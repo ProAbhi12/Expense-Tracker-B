@@ -5,6 +5,18 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Budgets from "./pages/Category";
 import Reports from "./pages/Reports";
+import { ThemeProvider } from "./context/ThemeContext";
+import { useTheme } from "./context/ThemeContext";
+
+function SettingsPlaceholder() {
+  const { dark } = useTheme();
+
+  return (
+    <div className={`p-8 text-center italic ${dark ? "text-slate-400" : "text-gray-500"}`}>
+      Settings UI
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -20,11 +32,7 @@ function App() {
         <Route path="reports" element={<Reports />} />
         <Route
           path="settings"
-          element={
-            <div className="p-8 text-center text-gray-500 italic">
-              Settings UI{" "}
-            </div>
-          }
+          element={<SettingsPlaceholder />}
         />
       </Route>
     </Routes>

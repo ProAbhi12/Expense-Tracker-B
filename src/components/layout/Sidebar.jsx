@@ -9,7 +9,7 @@ import {
   Menu,
   TrendingUp,
 } from "lucide-react";
-import { useTheme } from "../../ThemeContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import TransactionTable from '../components/TransactionTable';
-import TransactionFilters from '../components/TransactionFilters';
+import TransactionFilters from '../components/TransactionFIlters';
 import AddTransactionModal from '../components/AddTransactionModal';   // Make sure this path is correct
-
-import React from 'react';
-import { Search, Filter, Download, Plus, MoreHorizontal, Calendar } from 'lucide-react';
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 
 const mockTransactions = [
   {
@@ -57,15 +54,26 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState("");
 
 
-    const { dark } = useTheme();
+  const { dark } = useTheme();
+
   // Filter logic
   const filteredTransactions = transactions
     .filter((tx) => {
-      const matchesType = filterType === "ALL" || tx.type === filterType;
-      const matchesSearch = 
-        tx.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tx.category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tx.source.toLowerCase().includes(searchTerm.toLowerCase());
+      const normalizedFilterType = String(filterType).toUpperCase();
+      const txType = String(tx?.type ?? "").toUpperCase();
+      const matchesType = normalizedFilterType === "ALL" || txType === normalizedFilterType;
+
+      const q = searchTerm.trim().toLowerCase();
+      const txName = String(tx?.name ?? "").toLowerCase();
+      const txCategory = String(tx?.category?.name ?? tx?.category ?? "").toLowerCase();
+      const txSource = String(tx?.source ?? "").toLowerCase();
+
+      const matchesSearch =
+        q.length === 0 ||
+        txName.includes(q) ||
+        txCategory.includes(q) ||
+        txSource.includes(q);
+
       return matchesType && matchesSearch;
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -75,13 +83,13 @@ export default function Transactions() {
   };
 
   return (
-    <div className="p-6 space-y-6 min-h-screen bg-gray-50">
+    <div className={`p-6 space-y-6 min-h-screen ${dark ? "bg-slate-900" : "bg-gray-50"}`}>
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Transactions</h1>
+        <h1 className={`text-3xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>Transactions</h1>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium shadow-sm"
+          className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium ${dark ? "shadow-[0_8px_24px_rgba(96,165,250,0.25)]" : "shadow-sm"}`}
         >
           + Add Transaction
         </button>
@@ -93,17 +101,21 @@ export default function Transactions() {
         setFilterType={setFilterType}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        dark={dark}
       />
 
       {/* Table */}
-      <TransactionTable transactions={filteredTransactions} />
+      <TransactionTable transactions={filteredTransactions} dark={dark} />
 
       {/* Modal */}
       <AddTransactionModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddTransaction}
+        dark={dark}
       />
     </div>
+
+    
   );
 }

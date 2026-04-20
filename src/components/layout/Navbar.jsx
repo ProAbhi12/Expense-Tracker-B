@@ -1,6 +1,6 @@
 import React from "react";
 import { Search, User, Menu } from "lucide-react";
-import { useTheme } from "../../ThemeContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const Navbar = ({ toggleSidebar }) => {
   const { dark, toggleTheme } = useTheme();

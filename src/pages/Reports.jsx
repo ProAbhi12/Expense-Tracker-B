@@ -1,6 +1,9 @@
 import React from "react";
+import { useTheme } from "../context/ThemeContext";
 
 const Reports = () => {
+  const { dark } = useTheme();
+
   // Same mock transactions from Transactions.jsx
   const mockTransactions = [
     {
@@ -56,22 +59,22 @@ const Reports = () => {
     }, {});
 
   return (
-    <div className="p-8 space-y-8">
-      <h1 className="text-3xl font-bold text-gray-800">Reports</h1>
+    <div className={`p-8 space-y-8 ${dark ? "bg-slate-900 min-h-screen" : ""}`}>
+      <h1 className={`text-3xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>Reports</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-6">
         {/* Income Card */}
-        <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg">
-          <h3 className="text-gray-600 font-medium">Total Income</h3>
+        <div className={`border-l-4 border-green-500 p-6 rounded-lg ${dark ? "bg-green-900/20" : "bg-green-50"}`}>
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Total Income</h3>
           <p className="text-3xl font-bold text-green-600">
             Rs. {totalIncome.toLocaleString()}
           </p>
         </div>
 
         {/* Expense Card */}
-        <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
-          <h3 className="text-gray-600 font-medium">Total Expenses</h3>
+        <div className={`border-l-4 border-red-500 p-6 rounded-lg ${dark ? "bg-red-900/20" : "bg-red-50"}`}>
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Total Expenses</h3>
           <p className="text-3xl font-bold text-red-600">
             Rs. {totalExpenses.toLocaleString()}
           </p>
@@ -79,9 +82,9 @@ const Reports = () => {
 
         {/* Balance Card */}
         <div
-          className={`bg-blue-50 border-l-4 p-6 rounded-lg ${netBalance >= 0 ? "border-blue-500" : "border-orange-500"}`}
+          className={`border-l-4 p-6 rounded-lg ${netBalance >= 0 ? "border-blue-500" : "border-orange-500"} ${dark ? "bg-blue-900/20" : "bg-blue-50"}`}
         >
-          <h3 className="text-gray-600 font-medium">Net Balance</h3>
+          <h3 className={`font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}>Net Balance</h3>
           <p
             className={`text-3xl font-bold ${netBalance >= 0 ? "text-blue-600" : "text-orange-600"}`}
           >
@@ -91,18 +94,18 @@ const Reports = () => {
       </div>
 
       {/* Expense Breakdown */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <div className={`border rounded-lg p-6 ${dark ? "bg-slate-900 border-slate-700 shadow-[0_8px_24px_rgba(148,163,184,0.12)]" : "bg-white border-gray-200"}`}>
+        <h2 className={`text-xl font-bold mb-4 ${dark ? "text-slate-100" : "text-gray-800"}`}>
           Expense Breakdown by Category
         </h2>
         <div className="space-y-3">
           {Object.entries(expensesByCategory).map(([category, amount]) => (
             <div
               key={category}
-              className="flex justify-between items-center p-3 bg-gray-50 rounded"
+              className={`flex justify-between items-center p-3 rounded ${dark ? "bg-slate-800" : "bg-gray-50"}`}
             >
-              <span className="text-gray-700">{category}</span>
-              <span className="font-bold text-gray-800">
+              <span className={dark ? "text-slate-300" : "text-gray-700"}>{category}</span>
+              <span className={`font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
                 Rs. {amount.toLocaleString()}
               </span>
             </div>
