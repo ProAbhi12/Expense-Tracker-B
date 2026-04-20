@@ -23,7 +23,7 @@ const mockCategories = [
   { id: 8, name: "Shopping" },
 ];
 
-export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
+export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
   const [formData, setFormData] = useState({
     name: "",
     type: "EXPENSE",
@@ -81,14 +81,20 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
       
       {/* Increased top and bottom margin using my-12 and max-h */}
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-xl my-12 max-h-[90vh] overflow-hidden">
+      <div
+        className={`rounded-3xl w-full max-w-md my-12 max-h-[90vh] overflow-hidden border ${
+          dark
+            ? "bg-slate-900 border-slate-700 shadow-[0_12px_32px_rgba(148,163,184,0.16)]"
+            : "bg-white border-gray-200 shadow-xl"
+        }`}
+      >
 
         {/* Header */}
-        <div className="px-6 py-5 border-b bg-gray-50 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">Add New Transaction</h2>
+        <div className={`px-6 py-5 border-b flex justify-between items-center ${dark ? "bg-slate-800 border-slate-700" : "bg-gray-50 border-gray-200"}`}>
+          <h2 className={`text-xl font-semibold ${dark ? "text-slate-100" : "text-gray-800"}`}>Add New Transaction</h2>
           <button 
             onClick={onClose}
-            className="text-3xl leading-none text-gray-400 hover:text-gray-600 transition-colors"
+            className={`text-3xl leading-none transition-colors ${dark ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}
           >
             ×
           </button>
@@ -100,7 +106,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
             
             {/* Type Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Type</label>
+              <label className={`block text-sm font-medium mb-3 ${dark ? "text-slate-300" : "text-gray-700"}`}>Type</label>
               <div className="grid grid-cols-2 gap-3">
                 {transactionTypes.map((t) => (
                   <button
@@ -112,7 +118,9 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
                         ? t.color === "green" 
                           ? "bg-green-600 text-white" 
                           : "bg-red-600 text-white"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        : dark
+                          ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
                   >
                     {t.label}
@@ -123,28 +131,28 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Description</label>
+              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Description</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g. Grocery shopping"
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
                 required
               />
             </div>
 
             {/* Amount */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Amount (Rs.)</label>
+              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Amount (Rs.)</label>
               <input
                 type="number"
                 name="amount"
                 value={formData.amount}
                 onChange={handleChange}
                 placeholder="0.00"
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
                 required
               />
             </div>
@@ -152,12 +160,12 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
             {/* Category & Payment Method */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Category</label>
+                <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Category</label>
                 <select
                   name="categoryId"
                   value={formData.categoryId}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
                   required
                 >
                   <option value="">Select Category</option>
@@ -168,12 +176,12 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Payment Method</label>
+                <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Payment Method</label>
                 <select
                   name="reason"
                   value={formData.reason}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
                 >
                   {paymentMethods.map(method => (
                     <option key={method.value} value={method.value}>{method.label}</option>
@@ -184,27 +192,27 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
 
             {/* Source */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Source / Merchant</label>
+              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Source / Merchant</label>
               <input
                 type="text"
                 name="source"
                 value={formData.source}
                 onChange={handleChange}
                 placeholder="e.g. Big Mart, Vianet"
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
                 required
               />
             </div>
 
             {/* Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Date</label>
+              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Date</label>
               <input
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
               />
             </div>
 
@@ -213,7 +221,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3.5 border border-gray-300 rounded-2xl font-medium hover:bg-gray-50 transition-colors"
+                className={`flex-1 py-3.5 border rounded-2xl font-medium transition-colors ${dark ? "border-slate-700 text-slate-200 hover:bg-slate-800" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
               >
                 Cancel
               </button>
