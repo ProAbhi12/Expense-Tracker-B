@@ -13,16 +13,12 @@ import {
 // HELPER FUNCTIONS
 // ============================================
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return `Rs. ${amount.toFixed(2)}`;
 };
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-NP", {
     month: "short",
     day: "numeric",
     year: "numeric",
