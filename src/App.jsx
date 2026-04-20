@@ -5,7 +5,6 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Reports from "./pages/Reports";
 
-
 function App() {
   return (
     <Routes>
@@ -20,11 +19,7 @@ function App() {
             </div>
           }
         />
-        <Route
-          path="reports"
-          element={<Reports />
-          }
-        />
+        <Route path="reports" element={<Reports />} />
         <Route
           path="settings"
           element={
