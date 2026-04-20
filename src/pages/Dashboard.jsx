@@ -8,80 +8,17 @@ import {
   Calendar,
   Search,
 } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
-
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
 
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-
-const data = [
-  { name: "Income", value: 10000 },
-  { name: "Expense", value: 5000 },
-
-];
-
-const renderPercentLabel = ({ percent }) =>
-  `${(percent * 100).toFixed(0)}%`;
-const INCOLORS = ["#03a900", "#e20000"];
-
-const trendDataByRange = {
-  daily: [
-    { label: "Mon", income: 420, expense: 310 },
-    { label: "Tue", income: 580, expense: 360 },
-    { label: "Wed", income: 460, expense: 420 },
-    { label: "Thu", income: 620, expense: 390 },
-    { label: "Fri", income: 710, expense: 520 },
-    { label: "Sat", income: 680, expense: 610 },
-    { label: "Sun", income: 540, expense: 470 },
-  ],
-  weekly: [
-    { label: "W1", income: 3200, expense: 2400 },
-    { label: "W2", income: 3600, expense: 2700 },
-    { label: "W3", income: 3400, expense: 2900 },
-    { label: "W4", income: 3900, expense: 3050 },
-  ],
-  monthly: [
-    { label: "Jan", income: 8200, expense: 6100 },
-    { label: "Feb", income: 8700, expense: 6400 },
-    { label: "Mar", income: 9100, expense: 6800 },
-    { label: "Apr", income: 9400, expense: 7200 },
-    { label: "May", income: 9800, expense: 7600 },
-    { label: "Jun", income: 10200, expense: 7900 },
-  ],
-  yearly: [
-    { label: "2022", income: 86000, expense: 61000 },
-    { label: "2023", income: 93000, expense: 68000 },
-    { label: "2024", income: 101000, expense: 74000 },
-    { label: "2025", income: 108000, expense: 81000 },
-    { label: "2026", income: 116000, expense: 88000 },
-  ],
-};
-
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return `Rs. ${amount.toFixed(2)}`;
 };
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-NP", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -256,7 +193,7 @@ const expenseChange = getMonthlyChange();
 // ============================================
 // TRANSACTION LIST COMPONENT (Read Only)
 // ============================================
-const TransactionList = ({ dark }) => {
+const TransactionList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
 
@@ -273,16 +210,10 @@ const TransactionList = ({ dark }) => {
   );
 
   return (
-    <div
-      className={`rounded-xl border overflow-hidden transition-all ${
-        dark
-          ? "bg-slate-900 border-slate-700 shadow-[0_8px_24px_rgba(148,163,184,0.12)]"
-          : "bg-white border-gray-200 shadow-sm"
-      }`}
-    >
-      <div className={`p-4 border-b ${dark ? "border-slate-700" : "border-gray-100"}`}>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="p-4 border-b border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 className={`font-bold flex items-center gap-2 ${dark ? "text-slate-100" : "text-gray-800"}`}>
+          <h3 className="font-bold text-gray-800 flex items-center gap-2">
             <CreditCard size={18} className="text-blue-500" />
             Recent Transactions
           </h3>
@@ -298,22 +229,14 @@ const TransactionList = ({ dark }) => {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-9 pr-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${
-                  dark
-                    ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400"
-                    : "bg-white border-gray-200 text-gray-800"
-                }`}
+                className="pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
 
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className={`px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-colors ${
-                dark
-                  ? "bg-slate-800 border-slate-700 text-slate-100"
-                  : "bg-white border-gray-200 text-gray-800"
-              }`}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="all">All</option>
               <option value="expense">Expenses</option>
@@ -323,7 +246,7 @@ const TransactionList = ({ dark }) => {
         </div>
       </div>
 
-      <div className={`divide-y max-h-96 overflow-y-auto ${dark ? "divide-slate-700" : "divide-gray-100"}`}>
+      <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
         {sortedTransactions.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <CreditCard size={32} className="mx-auto mb-2 opacity-50" />
@@ -333,7 +256,7 @@ const TransactionList = ({ dark }) => {
           sortedTransactions.map((transaction) => (
             <div
               key={transaction.id}
-              className={`p-4 transition ${dark ? "hover:bg-slate-800/70" : "hover:bg-gray-50"}`}
+              className="p-4 hover:bg-gray-50 transition"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -353,11 +276,11 @@ const TransactionList = ({ dark }) => {
                     )}
                   </div>
                   <div>
-                    <p className={`font-medium ${dark ? "text-slate-100" : "text-gray-800"}`}>
+                    <p className="font-medium text-gray-800">
                       {transaction.description}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-xs flex items-center gap-1 ${dark ? "text-slate-400" : "text-gray-400"}`}>
+                      <span className="text-xs text-gray-400 flex items-center gap-1">
                         <Calendar size={10} />
                         {formatDate(transaction.date)}
                       </span>
@@ -415,8 +338,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>Dashboard</h1>
-          <p className={`mt-1 ${dark ? "text-slate-400" : "text-gray-500"}`}>
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+          <p className="text-gray-500 mt-1">
             Welcome back! Here's your financial summary.
           </p>
         </div>
@@ -425,13 +348,7 @@ const Dashboard = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Balance Card */}
-        <div
-          className={`bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-xl text-white transition ${
-            dark
-              ? "shadow-[0_10px_28px_rgba(96,165,250,0.28)] hover:shadow-[0_14px_34px_rgba(96,165,250,0.36)]"
-              : "shadow-lg"
-          }`}
-        >
+        <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-xl text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <p className="text-blue-100 text-sm font-medium">Total Balance</p>
             <Wallet size={20} className="text-blue-100" />
@@ -444,16 +361,12 @@ const Dashboard = () => {
         </div>
 
         {/* Income Card */}
-        <div
-          className={`p-6 rounded-xl border transition ${cardShadowClasses} ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
-          }`}
-        >
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between mb-4">
             <p className={`text-sm font-medium ${dark ? "text-slate-400" : "text-gray-500"}`}>Monthly Income</p>
             <ArrowUpRight size={20} className="text-green-500" />
           </div>
-          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
+          <h3 className="text-2xl font-bold text-gray-800">
             {formatCurrency(totalIncome)}
           </h3>
           <p className="text-green-600 text-xs font-medium mt-2">
@@ -462,18 +375,14 @@ const Dashboard = () => {
         </div>
 
         {/* Expense Card */}
-        <div
-          className={`p-6 rounded-xl border transition ${cardShadowClasses} ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
-          }`}
-        >
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between mb-4">
-            <p className={`text-sm font-medium ${dark ? "text-slate-400" : "text-gray-500"}`}>
+            <p className="text-gray-500 text-sm font-medium">
               Monthly Expenses
             </p>
             <ArrowDownRight size={20} className="text-red-500" />
           </div>
-          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
+          <h3 className="text-2xl font-bold text-gray-800">
             {formatCurrency(totalExpense)}
           </h3>
           <p
@@ -487,112 +396,9 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div
-          className={`p-6 rounded-xl border transition ${cardShadowClasses} ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className={`text-base font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
-                Income vs Expense
-              </h3>
-              <p className={`text-xs mt-1 ${dark ? "text-slate-400" : "text-gray-500"}`}>
-                Distribution for this month
-              </p>
-            </div>
-            <TrendingUp size={18} className="text-blue-500" />
-          </div>
-
-          <div className="w-full h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  label={renderPercentLabel}
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={INCOLORS[index % INCOLORS.length]}
-                    />
-                  ))}
-                </Pie>
-
-                <Tooltip
-                  formatter={(value, name) => {
-                    const total = data.reduce((sum, e) => sum + e.value, 0);
-                    const percent = ((value / total) * 100).toFixed(1);
-                    return [`${formatCurrency(value)} (${percent}%)`, name];
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div
-          className={`p-6 rounded-xl border transition ${cardShadowClasses} ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className={`text-base font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>
-                Income vs Expense Trend
-              </h3>
-              <p className={`text-xs mt-1 ${dark ? "text-slate-400" : "text-gray-500"}`}>
-                Daily / Weekly / Monthly / Yearly
-              </p>
-            </div>
-            <TrendingUp size={18} className="text-blue-500" />
-          </div>
-
-          <div className="mb-4 flex flex-wrap gap-2">
-            {[
-              { key: "daily", label: "Daily" },
-              { key: "weekly", label: "Weekly" },
-              { key: "monthly", label: "Monthly" },
-              { key: "yearly", label: "Yearly" },
-            ].map((range) => (
-              <button
-                key={range.key}
-                onClick={() => setTrendRange(range.key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                  trendRange === range.key
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : dark
-                      ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700"
-                      : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="w-full h-[300px]">
-            <ResponsiveContainer>
-              <LineChart data={trendData} margin={{ top: 8, right: 18, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-                <XAxis dataKey="label" stroke={axisStroke} tickLine={false} axisLine={false} />
-                <YAxis stroke={axisStroke} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(value, name) => [formatCurrency(value), name]} />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Line type="monotone" dataKey="income" name="Income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="expense" name="Expense" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+      {/* Transaction List - Full Width (Read Only) */}
+      <div>
+        <TransactionList />
       </div>
 
       {/* Transaction List - Full Width (Read Only) */}
