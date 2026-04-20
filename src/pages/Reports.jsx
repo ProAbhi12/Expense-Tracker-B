@@ -64,20 +64,20 @@ const Reports = () => {
         {/* Income Card */}
         <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg">
           <h3 className="text-gray-600 font-medium">Total Income</h3>
-          <p className="text-3xl font-bold text-green-600">₹{totalIncome.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-green-600">Rs. {totalIncome.toLocaleString()}</p>
         </div>
 
         {/* Expense Card */}
         <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
           <h3 className="text-gray-600 font-medium">Total Expenses</h3>
-          <p className="text-3xl font-bold text-red-600">₹{totalExpenses.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-red-600">Rs. {totalExpenses.toLocaleString()}</p>
         </div>
 
         {/* Balance Card */}
         <div className={`bg-blue-50 border-l-4 p-6 rounded-lg ${netBalance >= 0 ? 'border-blue-500' : 'border-orange-500'}`}>
           <h3 className="text-gray-600 font-medium">Net Balance</h3>
           <p className={`text-3xl font-bold ${netBalance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-            ₹{netBalance.toLocaleString()}
+            Rs. {netBalance.toLocaleString()}
           </p>
         </div>
       </div>
@@ -89,7 +89,7 @@ const Reports = () => {
           {Object.entries(expensesByCategory).map(([category, amount]) => (
             <div key={category} className="flex justify-between items-center p-3 bg-gray-50 rounded">
               <span className="text-gray-700">{category}</span>
-              <span className="font-bold text-gray-800">₹{amount.toLocaleString()}</span>
+              <span className="font-bold text-gray-800">Rs. {amount.toLocaleString()}</span>
             </div>
           ))}
         </div>
