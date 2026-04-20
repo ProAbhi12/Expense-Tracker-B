@@ -6,6 +6,7 @@ import Transactions from "./pages/Transactions";
 import Reports from "./pages/Reports";
 
 
+
 function App() {
   return (
     <Routes>
@@ -22,7 +23,10 @@ function App() {
         />
         <Route
           path="reports"
-          element={<Reports />
+          element={
+            <div className="p-8 text-center text-gray-500 italic">
+              Reports UI{" "}
+            </div>
           }
         />
         <Route
