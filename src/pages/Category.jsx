@@ -30,6 +30,14 @@ const CATEGORY_OPTIONS = [
 const defaultOption = CATEGORY_OPTIONS[0];
 const getCategoryIcon = categoryName => CATEGORY_OPTIONS.find(item => item.category === categoryName)?.icon || '🧾';
 const COLOR_SWATCHES = ['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#334155'];
+const COLORS = COLOR_SWATCHES;
+const renderPercentLabel = ({ percent }) => `${(percent * 100).toFixed(0)}%`;
+const trendMultipliers = {
+  daily: 0.08,
+  weekly: 0.35,
+  monthly: 1,
+  yearly: 12,
+};
 const formatNPR = amount => new Intl.NumberFormat('en-NP', {
   style: 'currency',
   currency: 'NPR',
@@ -43,6 +51,7 @@ const parseAmountInput = value => {
 
 const AddBudgetModal = ({ onClose }) => {
   const { addBudget } = useApp();
+  const { dark } = useTheme();
   const [selectedPreset, setSelectedPreset] = useState(defaultOption.category);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -202,6 +211,7 @@ const AddBudgetModal = ({ onClose }) => {
 
 const BudgetCard = ({ budget }) => {
   const { getSpentByCategory, deleteBudget } = useApp();
+  const { dark } = useTheme();
   const icon = getCategoryIcon(budget.category);
   const spent = getSpentByCategory(budget.category);
   const remaining = budget.budget - spent;
