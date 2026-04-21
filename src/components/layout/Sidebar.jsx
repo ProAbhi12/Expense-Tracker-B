@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -12,6 +13,7 @@ import {
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
+  const { dark } = useTheme();
 
   const menuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -35,7 +37,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             ExpenseTracker
           </span>
         </div>
-        <button onClick={toggleSidebar} className="md:hidden text-gray-500">
+        <button
+          onClick={toggleSidebar}
+          className={`md:hidden ${dark ? "text-slate-300" : "text-gray-500"}`}
+        >
           <Menu size={24} />
         </button>
       </div>
