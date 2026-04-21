@@ -1,19 +1,16 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ArrowLeftRight,
   Settings,
   PieChart,
   Tags,
-  Menu,
   TrendingUp,
 } from "lucide-react";
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({ isOpen }) => {
   const location = useLocation();
-  const { dark } = useTheme();
 
   const menuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -24,29 +21,23 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${
+      className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } md:relative md:translate-x-0`}
     >
       <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+        <div className="flex items-center space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="shrink-0 w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
             <TrendingUp className="text-white" size={18} />
           </div>
           <span className="text-lg font-bold text-gray-800">
             ExpenseTracker
           </span>
         </div>
-        <button
-          onClick={toggleSidebar}
-          className={`md:hidden ${dark ? "text-slate-300" : "text-gray-500"}`}
-        >
-          <Menu size={24} />
-        </button>
       </div>
 
       <nav className="mt-4 px-3 space-y-1">
-        {menuItems.map((item , index) => {
+        {menuItems.map((item, index) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
