@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { createContext,useCallback, useContext, 
+    useMemo, useState } from 'react';
 
 // ========== CONTEXT SETUP ==========
 const AppContext = createContext(null);
@@ -27,10 +27,14 @@ const toNumber = (value) => {
   return Number.isFinite(num) ? num : 0;
 };
 
-// ========== INITIAL DATA ==========
-/**
- * Sample budget categories with preset amounts
- */
+const toNumber = value => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  if (typeof value !== 'string') return 0;
+  const sanitized = value.replace(/,/g, '').trim();
+  const parsed = Number(sanitized);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 const initialBudgets = [
   { id: uuidv4(), category: 'Food', budget: 3000, color: '#ef4444' },
   { id: uuidv4(), category: 'Transportation', budget: 1500, color: '#3b82f6' },
@@ -43,10 +47,10 @@ const initialBudgets = [
  * Sample transactions for testing
  */
 const initialTransactions = [
-  { id: uuidv4(), category: 'Food', amount: '450' },
-  { id: uuidv4(), category: 'Transportation', amount: '750' },
-  { id: uuidv4(), category: 'Entertainment', amount: '1000' },
-  { id: uuidv4(), category: 'Shopping', amount: '1400' },
+  { id: uuidv4(), category: 'Food', amount: "450" },
+  { id: uuidv4(), category: 'Transportation', amount: "750" },
+  { id: uuidv4(), category: 'Entertainment', amount: "1000" },
+  { id: uuidv4(), category: 'Shopping', amount: "1400" },
 ];
 
 // ========== APP PROVIDER COMPONENT ==========
@@ -55,70 +59,42 @@ export const AppProvider = ({ children }) => {
   const [budgets, setBudgets] = useState(initialBudgets);
   const [transactions] = useState(initialTransactions);
 
-  // ===== ADD BUDGET FUNCTION =====
-  const addBudget = useCallback((budget) => {
-    // Normalize category name for comparison (case-insensitive)
+  const addBudget = useCallback(budget => {
     const normalizedCategory = budget.category.trim().toLowerCase();
 
-    setBudgets((currentBudgets) => {
-      // Check if budget for this category already exists
+    setBudgets(currentBudgets => {
       const existingBudget = currentBudgets.find(
-        (item) => item.category.trim().toLowerCase() === normalizedCategory
+        item => item.category.trim().toLowerCase() === normalizedCategory,
       );
 
-      // If new category: add it
       if (!existingBudget) {
         return [...currentBudgets, { ...budget, id: uuidv4() }];
       }
 
-      // If exists: update it (merge old with new data)
-      return currentBudgets.map((item) =>
-        item.id === existingBudget.id
-          ? { ...item, ...budget, id: item.id } // Preserve original ID
-          : item
-      );
+      return currentBudgets.map(item => (
+        item.id === existingBudget.id ? { ...item, ...budget, id: item.id } : item
+      ));
     });
   }, []);
 
-  // ===== DELETE BUDGET FUNCTION =====
-  const deleteBudget = useCallback((budgetId) => {
-    setBudgets((currentBudgets) =>
-      currentBudgets.filter((budget) => budget.id !== budgetId)
-    );
+  const deleteBudget = useCallback(budgetId => {
+    setBudgets(currentBudgets => currentBudgets.filter(budget => budget.id !== budgetId));
   }, []);
 
-  // ===== GET SPENT BY CATEGORY FUNCTION =====
-  /**
-   * Calculates total spent in a specific category
-   * by summing all transactions for that category
-   */
-  const getSpentByCategory = useCallback((category) => {
-    // Normalize category for matching
+  const getSpentByCategory = useCallback(category => {
     const normalizedCategory = category.trim().toLowerCase();
-
-    // Filter transactions for this category and sum amounts
     return transactions
-      .filter(
-        (transaction) =>
-          transaction.category.trim().toLowerCase() === normalizedCategory
-      )
+      .filter(transaction => transaction.category.trim().toLowerCase() === normalizedCategory)
       .reduce((total, transaction) => total + toNumber(transaction.amount), 0);
   }, [transactions]);
 
-  // ===== CONTEXT VALUE =====
-  /**
-   * Memoized value to prevent unnecessary re-renders
-   */
-  const contextValue = useMemo(
-    () => ({
-      budgets,
-      transactions,
-      addBudget,
-      deleteBudget,
-      getSpentByCategory,
-    }),
-    [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]
-  );
+  const value = useMemo(() => ({
+    budgets,
+    transactions,
+    addBudget,
+    deleteBudget,
+    getSpentByCategory,
+  }), [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]);
 
   return (
     <AppContext.Provider value={contextValue}>
