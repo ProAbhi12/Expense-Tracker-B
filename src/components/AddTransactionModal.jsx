@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { X, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { X, ArrowUpCircle, ArrowDownCircle, Calendar } from 'lucide-react';
 
 const transactionTypes = [
   { value: "INCOME", label: "Income", icon: ArrowUpCircle },
   { value: "EXPENSE", label: "Expense", icon: ArrowDownCircle },
+];
+
+const paymentMethods = [
+  { value: "CASH", label: "Cash" },  
+  { value: "ESEWA", label: "eSewa" },
+  { value: "KHALTI", label: "Khalti" },
+  { value: "MOBILE_BANKING", label: "Mobile Banking" },
 ];
 
 const mockCategories = [
@@ -22,6 +29,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
     type: "EXPENSE",
     categoryId: "1",
     amount: "",
+    paymentMethod: "CASH",
     date: new Date().toISOString().split('T')[0],
   });
 
@@ -50,10 +58,10 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-      <div className={`w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-100"}`}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm overflow-y-auto">
+      <div className={`w-full max-w-md my-8 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-100"}`}>
         
-        {/* Creative Header - Changes color based on type */}
+        {/* Creative Header */}
         <div className={`p-6 text-white flex justify-between items-center transition-colors duration-300 ${formData.type === 'EXPENSE' ? 'bg-red-600' : 'bg-green-600'}`}>
           <div>
             <h2 className="text-xl font-bold text-white">Add New Entry</h2>
@@ -64,7 +72,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Type Switcher */}
           <div className={`flex p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-gray-100"}`}>
             {transactionTypes.map((t) => (
@@ -120,27 +128,29 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
             ))}
           </div>
 
-          {/* Description & Category */}
-          <div className="space-y-4">
-            <div>
-              <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Description</label>
-              <input 
-                type="text" 
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="What was this for?" 
-                className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
-                }`}
-                required
-              />
-            </div>
+          {/* Description */}
+          <div>
+            <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Description</label>
+            <input 
+              type="text" 
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="What was this for?" 
+              className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+              }`}
+              required
+            />
+          </div>
+
+          {/* Category & Payment Method Row */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Category</label>
               <select 
                 value={formData.categoryId}
                 onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
                   dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
                 }`}
               >
@@ -148,6 +158,36 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Payment</label>
+              <select 
+                value={formData.paymentMethod}
+                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+                }`}
+              >
+                {paymentMethods.map(method => (
+                  <option key={method.value} value={method.value}>{method.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Date Picker */}
+          <div>
+            <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Transaction Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input 
+                type="date" 
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+                }`}
+              />
             </div>
           </div>
 
