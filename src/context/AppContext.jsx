@@ -1,71 +1,144 @@
-import React, { createContext, useContext, 
-    useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-const uuidv4 = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
+// ========== CONTEXT SETUP ==========
 const AppContext = createContext(null);
 
+// ========== HELPER FUNCTIONS ==========
+/**
+ * Safely converts any value to a number
+ * Handles: numbers, strings with commas (1,500), invalid values
+ */
+const toNumber = (value) => {
+  // If already a number, validate it
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  // If not a string, return 0
+  if (typeof value !== 'string') {
+    return 0;
+  }
+
+  // Remove commas and parse
+  const cleaned = value.replace(/,/g, '').trim();
+  const num = Number(cleaned);
+
+  return Number.isFinite(num) ? num : 0;
+};
+
+// ========== INITIAL DATA ==========
+/**
+ * Sample budget categories with preset amounts
+ */
 const initialBudgets = [
-  { id: uuidv4(), category: 'Food', budget: 300, icon: '🍔', color: '#ef4444' },
-  { id: uuidv4(), category: 'Transportation', budget: 150, icon: '🚗', color: '#3b82f6' },
-  { id: uuidv4(), category: 'Housing', budget: 1000, icon: '🏠', color: '#f59e0b' },
-  { id: uuidv4(), category: 'Entertainment', budget: 100, icon: '🎬', color: '#10b981' },
-  { id: uuidv4(), category: 'Shopping', budget: 200, icon: '🛍️', color: '#8b5cf6' },
+  { id: uuidv4(), category: 'Food', budget: 3000, color: '#ef4444' },
+  { id: uuidv4(), category: 'Transportation', budget: 1500, color: '#3b82f6' },
+  { id: uuidv4(), category: 'Housing', budget: 10000, color: '#f59e0b' },
+  { id: uuidv4(), category: 'Entertainment', budget: 100, color: '#10b981' },
+  { id: uuidv4(), category: 'Shopping', budget: 2000, color: '#8b5cf6' },
 ];
 
+/**
+ * Sample transactions for testing
+ */
 const initialTransactions = [
-  { id: uuidv4(), category: 'Food', amount: 86.75 },
-  { id: uuidv4(), category: 'Transportation', amount: 42.5 },
-  { id: uuidv4(), category: 'Entertainment', amount: 58 },
-  { id: uuidv4(), category: 'Shopping', amount: 24.99 },
+  { id: uuidv4(), category: 'Food', amount: '450' },
+  { id: uuidv4(), category: 'Transportation', amount: '750' },
+  { id: uuidv4(), category: 'Entertainment', amount: '1000' },
+  { id: uuidv4(), category: 'Shopping', amount: '1400' },
 ];
 
+// ========== APP PROVIDER COMPONENT ==========
 export const AppProvider = ({ children }) => {
+  // State management
   const [budgets, setBudgets] = useState(initialBudgets);
   const [transactions] = useState(initialTransactions);
 
-  const addBudget = budget => {
-    setBudgets(currentBudgets => [
-      ...currentBudgets,
-      { ...budget, id: uuidv4() },
-    ]);
-  };
+  // ===== ADD BUDGET FUNCTION =====
+  const addBudget = useCallback((budget) => {
+    // Normalize category name for comparison (case-insensitive)
+    const normalizedCategory = budget.category.trim().toLowerCase();
 
-  const deleteBudget = budgetId => {
-    setBudgets(currentBudgets => currentBudgets.filter(budget => budget.id !== budgetId));
-  };
+    setBudgets((currentBudgets) => {
+      // Check if budget for this category already exists
+      const existingBudget = currentBudgets.find(
+        (item) => item.category.trim().toLowerCase() === normalizedCategory
+      );
 
-  const getSpentByCategory = category => {
+      // If new category: add it
+      if (!existingBudget) {
+        return [...currentBudgets, { ...budget, id: uuidv4() }];
+      }
+
+      // If exists: update it (merge old with new data)
+      return currentBudgets.map((item) =>
+        item.id === existingBudget.id
+          ? { ...item, ...budget, id: item.id } // Preserve original ID
+          : item
+      );
+    });
+  }, []);
+
+  // ===== DELETE BUDGET FUNCTION =====
+  const deleteBudget = useCallback((budgetId) => {
+    setBudgets((currentBudgets) =>
+      currentBudgets.filter((budget) => budget.id !== budgetId)
+    );
+  }, []);
+
+  // ===== GET SPENT BY CATEGORY FUNCTION =====
+  /**
+   * Calculates total spent in a specific category
+   * by summing all transactions for that category
+   */
+  const getSpentByCategory = useCallback((category) => {
+    // Normalize category for matching
+    const normalizedCategory = category.trim().toLowerCase();
+
+    // Filter transactions for this category and sum amounts
     return transactions
-      .filter(transaction => transaction.category === category)
-      .reduce((total, transaction) => total + transaction.amount, 0);
-  };
+      .filter(
+        (transaction) =>
+          transaction.category.trim().toLowerCase() === normalizedCategory
+      )
+      .reduce((total, transaction) => total + toNumber(transaction.amount), 0);
+  }, [transactions]);
 
-  const value = useMemo(() => ({
-    budgets,
-    transactions,
-    addBudget,
-    deleteBudget,
-    getSpentByCategory,
-  }), [budgets, transactions]);
+  // ===== CONTEXT VALUE =====
+  /**
+   * Memoized value to prevent unnecessary re-renders
+   */
+  const contextValue = useMemo(
+    () => ({
+      budgets,
+      transactions,
+      addBudget,
+      deleteBudget,
+      getSpentByCategory,
+    }),
+    [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]
+  );
 
   return (
-    <AppContext.Provider value={value}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
 };
 
+// ========== CUSTOM HOOK ==========
+/**
+ * Hook to access app context anywhere in the component tree
+ * Throws error if used outside of AppProvider
+ */
 export const useApp = () => {
-  const ctx = useContext(AppContext);
+  const context = useContext(AppContext);
 
-  if (!ctx) throw new Error('useApp must be inside AppProvider');
+  // Safety check: ensure hook is used inside provider
+  if (!context) {
+    throw new Error('❌ useApp must be used inside <AppProvider>');
+  }
 
-  return ctx;
+  return context;
 };
