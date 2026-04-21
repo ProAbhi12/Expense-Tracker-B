@@ -1,6 +1,7 @@
 import React, { createContext,useCallback, useContext, 
     useMemo, useState } from 'react';
 import categoryData from '../dummyData/categoryData.json';
+import transactionsData from '../dummyData/transactions.json';
 
 const uuidv4 = () => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -25,10 +26,13 @@ const initialBudgets = categoryData.initialBudgets.map((item) => ({
   id: uuidv4(),
 }));
 
-const initialTransactions = categoryData.initialTransactions.map((item) => ({
-  ...item,
-  id: uuidv4(),
-}));
+const initialTransactions = transactionsData
+  .filter(item => String(item.type).toUpperCase() === 'EXPENSE')
+  .map((item) => ({
+    category: item.category,
+    amount: item.amount,
+    id: uuidv4(),
+  }));
 
 export const AppProvider = ({ children }) => {
   const [budgets, setBudgets] = useState(initialBudgets);

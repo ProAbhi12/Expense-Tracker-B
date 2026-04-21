@@ -8,6 +8,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
   LineChart,
   Line,
   XAxis,
@@ -25,11 +27,9 @@ const COLOR_SWATCHES = categoryData.colorSwatches;
 const COLORS = COLOR_SWATCHES;
 const renderPercentLabel = ({ percent }) => `${(percent * 100).toFixed(0)}%`;
 const trendMultipliers = categoryData.trendMultipliers;
-const formatNPR = amount => new Intl.NumberFormat('en-NP', {
-  style: 'currency',
-  currency: 'NPR',
+const formatRs = amount => `Rs. ${new Intl.NumberFormat('en-NP', {
   maximumFractionDigits: 2,
-}).format(amount);
+}).format(amount)}`;
 const parseAmountInput = value => {
   const sanitized = value.replace(/,/g, '').trim();
   const parsed = Number(sanitized);
@@ -131,7 +131,7 @@ const AddBudgetModal = ({ onClose, gradient }) => {
 
         <div className="mb-4">
           <div>
-            <label className={`mb-2 block text-sm font-medium ${gradient ? "text-purple-200" : dark ? "text-slate-400" : "text-slate-600"}`}>Budget Amount (NRP)</label>
+            <label className={`mb-2 block text-sm font-medium ${gradient ? "text-purple-200" : dark ? "text-slate-400" : "text-slate-600"}`}>Budget Amount (Rs.)</label>
             <input
               name="budget"
               type="text"
@@ -211,7 +211,7 @@ const BudgetCard = ({ budget, gradient }) => {
         <div>
           <h3 className={`text-base font-semibold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-slate-900"}`}>{icon} {budget.category}</h3>
           <div className={`mt-1 flex items-center gap-2 text-xs ${gradient ? "text-purple-300" : dark ? "text-slate-400" : "text-slate-500"}`}>
-            <span>Budget: {formatNPR(budget.budget)}</span>
+            <span>Budget: {formatRs(budget.budget)}</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
               <span className="h-2 w-2 rounded-full" style={{ background: budget.color }} />
               Theme
@@ -224,9 +224,9 @@ const BudgetCard = ({ budget, gradient }) => {
       </div>
 
       <div className={`mb-3 text-sm font-semibold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-slate-800"}`}>
-        Spent: {formatNPR(spent)} / Remaining:{' '}
+        Spent: {formatRs(spent)} / Remaining:{' '}
         <span style={{ color: over ? '#ef4444' : 'inherit' }}>
-          {formatNPR(Math.abs(remaining))}{over ? ' (over!)' : ''}
+          {formatRs(Math.abs(remaining))}{over ? ' (over!)' : ''}
         </span>
       </div>
 
@@ -242,7 +242,7 @@ const BudgetCard = ({ budget, gradient }) => {
 
       <div className={`flex justify-between gap-2 text-xs ${gradient ? "text-purple-300" : dark ? "text-slate-400" : "text-slate-500"}`}>
         <span>{Math.round(pct)}% of budget</span>
-        <span>{formatNPR(Math.max(remaining, 0))} left</span>
+        <span>{formatRs(Math.max(remaining, 0))} left</span>
       </div>
     </div>
   );
@@ -302,8 +302,13 @@ const Budgets = () => {
                     <Cell key={`budget-cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [`$${Number(value).toFixed(2)}`, name]} />
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Tooltip formatter={(value, name) => [`Rs. ${Number(value).toFixed(2)}`, name]} />
+                <Legend
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
+                  wrapperStyle={{ fontSize: '12px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -344,12 +349,34 @@ const Budgets = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
                 <XAxis dataKey="label" stroke={axisStroke} tickLine={false} axisLine={false} />
                 <YAxis stroke={axisStroke} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Budget']} />
+                <Tooltip formatter={(value) => [`Rs. ${Number(value).toFixed(2)}`, 'Budget']} />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Line type="monotone" dataKey="value" name="Budget" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
+
+      <div className={`w-full lg:w-1/2 mx-auto rounded-2xl border p-5 ${gradient ? "border-purple-700/40 bg-slate-900/40" : dark ? "border-slate-700 bg-slate-900 shadow-[0_8px_24px_rgba(148,163,184,0.12)]" : "border-slate-200 bg-white shadow-sm"}`}>
+        <h3 className={`mb-1 text-base font-semibold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-slate-900"}`}>Budget Bar Graph</h3>
+        <p className={`mb-4 text-xs ${gradient ? "text-purple-200" : dark ? "text-slate-400" : "text-slate-500"}`}>Budget values across categories</p>
+
+        <div style={{ width: '100%', height: 320 }}>
+          <ResponsiveContainer>
+            <BarChart data={budgetChartData} margin={{ top: 8, right: 18, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="name" stroke={axisStroke} tickLine={false} axisLine={false} />
+              <YAxis stroke={axisStroke} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value) => [`Rs. ${Number(value).toFixed(2)}`, 'Budget']} />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Bar dataKey="value" name="Budget" radius={[8, 8, 0, 0]}>
+                {budgetChartData.map((entry, index) => (
+                  <Cell key={`bar-cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

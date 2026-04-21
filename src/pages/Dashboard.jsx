@@ -318,7 +318,12 @@ const Dashboard = () => {
                   <Cell fill="#ef4444" />
                 </Pie>
                 <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Legend
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
+                  wrapperStyle={{ fontSize: "12px" }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

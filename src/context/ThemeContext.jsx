@@ -2,18 +2,34 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const ThemeContext = createContext();
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light"); // "light", "dark", "gradient"
+const getStoredTheme = () => {
+  if (typeof window === "undefined") return "light";
 
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved) setTheme(saved);
-  }, []);
+  const saved = localStorage.getItem("theme");
+  return saved === "light" || saved === "dark" || saved === "gradient" ? saved : "light";
+};
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(getStoredTheme); // "light", "dark", "gradient"
 
   useEffect(() => {
     document.body.className = theme;
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key !== "theme") return;
+
+      const nextTheme = event.newValue;
+      if (nextTheme === "light" || nextTheme === "dark" || nextTheme === "gradient") {
+        setTheme(nextTheme);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => {
