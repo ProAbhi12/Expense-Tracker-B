@@ -1,15 +1,31 @@
 import React, { createContext,useCallback, useContext, 
     useMemo, useState } from 'react';
 
-const uuidv4 = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
+// ========== CONTEXT SETUP ==========
+const AppContext = createContext(null);
+
+// ========== HELPER FUNCTIONS ==========
+/**
+ * Safely converts any value to a number
+ * Handles: numbers, strings with commas (1,500), invalid values
+ */
+const toNumber = (value) => {
+  // If already a number, validate it
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
   }
 
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
+  // If not a string, return 0
+  if (typeof value !== 'string') {
+    return 0;
+  }
 
-const AppContext = createContext(null);
+  // Remove commas and parse
+  const cleaned = value.replace(/,/g, '').trim();
+  const num = Number(cleaned);
+
+  return Number.isFinite(num) ? num : 0;
+};
 
 const toNumber = value => {
   if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
@@ -27,6 +43,9 @@ const initialBudgets = [
   { id: uuidv4(), category: 'Shopping', budget: 2000, color: '#8b5cf6' },
 ];
 
+/**
+ * Sample transactions for testing
+ */
 const initialTransactions = [
   { id: uuidv4(), category: 'Food', amount: "450" },
   { id: uuidv4(), category: 'Transportation', amount: "750" },
@@ -34,7 +53,9 @@ const initialTransactions = [
   { id: uuidv4(), category: 'Shopping', amount: "1400" },
 ];
 
+// ========== APP PROVIDER COMPONENT ==========
 export const AppProvider = ({ children }) => {
+  // State management
   const [budgets, setBudgets] = useState(initialBudgets);
   const [transactions] = useState(initialTransactions);
 
@@ -76,16 +97,24 @@ export const AppProvider = ({ children }) => {
   }), [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]);
 
   return (
-    <AppContext.Provider value={value}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
 };
 
+// ========== CUSTOM HOOK ==========
+/**
+ * Hook to access app context anywhere in the component tree
+ * Throws error if used outside of AppProvider
+ */
 export const useApp = () => {
-  const ctx = useContext(AppContext);
+  const context = useContext(AppContext);
 
-  if (!ctx) throw new Error('useApp must be inside AppProvider');
+  // Safety check: ensure hook is used inside provider
+  if (!context) {
+    throw new Error('❌ useApp must be used inside <AppProvider>');
+  }
 
-  return ctx;
+  return context;
 };

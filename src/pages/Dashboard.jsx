@@ -184,6 +184,33 @@ const TransactionList = ({ dark }) => {
 };
 
 // ============================================
+// TREND DATA BY RANGE
+// ============================================
+const trendDataByRange = {
+  monthly: [
+    { date: "Week 1", value: 450 },
+    { date: "Week 2", value: 380 },
+    { date: "Week 3", value: 520 },
+    { date: "Week 4", value: 490 },
+  ],
+  weekly: [
+    { date: "Mon", value: 120 },
+    { date: "Tue", value: 180 },
+    { date: "Wed", value: 150 },
+    { date: "Thu", value: 200 },
+    { date: "Fri", value: 220 },
+    { date: "Sat", value: 280 },
+    { date: "Sun", value: 160 },
+  ],
+  yearly: [
+    { date: "Jan", value: 1200 },
+    { date: "Feb", value: 1400 },
+    { date: "Mar", value: 1100 },
+    { date: "Apr", value: 1840 },
+  ],
+};
+
+// ============================================
 // MAIN DASHBOARD COMPONENT
 // ============================================
 const Dashboard = () => {
