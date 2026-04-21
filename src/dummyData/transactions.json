@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "Salary Deposit",
+    "category": "Salary",
+    "type": "INCOME",
+    "reason": "MOBILE_BANKING",
+    "source": "Company XYZ",
+    "date": "2026-04-15T09:30:00Z",
+    "amount": 45000
+  },
+  {
+    "id": 2,
+    "name": "Monthly Grocery",
+    "category": "Food",
+    "type": "EXPENSE",
+    "reason": "CASH",
+    "source": "Big Mart",
+    "date": "2026-04-18T18:15:00Z",
+    "amount": 8500
+  },
+  {
+    "id": 3,
+    "name": "Internet Bill",
+    "category": "Utilities",
+    "type": "EXPENSE",
+    "reason": "ESEWA",
+    "source": "Vianet",
+    "date": "2026-04-17T07:45:00Z",
+    "amount": 1200
+  },
+  {
+    "id": 4,
+    "name": "Freelance Payment",
+    "category": "Freelance",
+    "type": "INCOME",
+    "reason": "KHALTI",
+    "source": "Client Project",
+    "date": "2026-04-16T21:20:00Z",
+    "amount": 25000
+  },
+  {
+    "id": 5,
+    "name": "Electric Bill",
+    "category": "Utilities",
+    "type": "EXPENSE",
+    "reason": "MOBILE_BANKING",
+    "source": "NEA",
+    "date": "2026-04-12T10:00:00Z",
+    "amount": 2100
+  },
+  {
+    "id": 6,
+    "name": "Gym Membership",
+    "category": "Health",
+    "type": "EXPENSE",
+    "reason": "CASH",
+    "source": "Gym",
+    "date": "2026-04-11T09:00:00Z",
+    "amount": 2500
+  },
+  {
+    "id": 7,
+    "name": "Movie Ticket",
+    "category": "Entertainment",
+    "type": "EXPENSE",
+    "reason": "ESEWA",
+    "source": "Cinema",
+    "date": "2026-04-13T20:00:00Z",
+    "amount": 700
+  },
+  {
+    "id": 8,
+    "name": "Rent Payment",
+    "category": "Housing",
+    "type": "EXPENSE",
+    "reason": "MOBILE_BANKING",
+    "source": "Landlord",
+    "date": "2026-04-01T08:00:00Z",
+    "amount": 18000
+  }
+]

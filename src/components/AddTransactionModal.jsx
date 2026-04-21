@@ -1,36 +1,21 @@
 import React, { useState } from 'react';
+import transactionFormData from '../dummyData/transactionFormData.json';
+import categoryData from '../dummyData/categoryData.json';
 
-const paymentMethods = [
-  { value: "CASH", label: "Cash" },
-  { value: "ESEWA", label: "eSewa" },
-  { value: "KHALTI", label: "Khalti" },
-  { value: "MOBILE_BANKING", label: "Mobile Banking" },
-];
+const paymentMethods = transactionFormData.paymentMethods;
+const transactionTypes = transactionFormData.transactionTypes;
+const mockCategories = categoryData.categoryOptions.map((item, index) => ({
+  id: index + 1,
+  name: item.category,
+}));
 
-const transactionTypes = [
-  { value: "INCOME", label: "Income", color: "green" },
-  { value: "EXPENSE", label: "Expense", color: "red" },
-];
-
-const mockCategories = [
-  { id: 1, name: "Food" },
-  { id: 2, name: "Housing" },
-  { id: 3, name: "Transportation" },
-  { id: 4, name: "Entertainment" },
-  { id: 5, name: "Salary" },
-  { id: 6, name: "Freelance" },
-  { id: 7, name: "Utilities" },
-  { id: 8, name: "Shopping" },
-];
-
-export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
+export default function AddTransactionModal({ isOpen, onClose, onAdd, dark, gradient }) {
   const [formData, setFormData] = useState({
     name: "",
     type: "EXPENSE",
     categoryId: "",
-    source: "",
     reason: "CASH",
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().slice(0, 16),
     amount: "",
   });
 
@@ -41,7 +26,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.categoryId || !formData.source || !formData.amount) {
+    if (!formData.name || !formData.categoryId || !formData.amount) {
       alert("Please fill all required fields!");
       return;
     }
@@ -52,7 +37,6 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
       type: formData.type,
       categoryId: parseInt(formData.categoryId),
       category: mockCategories.find(cat => cat.id === parseInt(formData.categoryId)),
-      source: formData.source,
       reason: formData.reason,
       date: formData.date,
       amount: parseFloat(formData.amount),
@@ -68,9 +52,8 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
       name: "",
       type: "EXPENSE",
       categoryId: "",
-      source: "",
       reason: "CASH",
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().slice(0, 16),
       amount: "",
     });
   };
@@ -83,18 +66,20 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
       {/* Increased top and bottom margin using my-12 and max-h */}
       <div
         className={`rounded-3xl w-full max-w-md my-12 max-h-[90vh] overflow-hidden border ${
-          dark
+          gradient
+            ? "bg-slate-900/60 border-purple-700/40 backdrop-blur-sm shadow-[0_12px_32px_rgba(147,51,234,0.2)]"
+            : dark
             ? "bg-slate-900 border-slate-700 shadow-[0_12px_32px_rgba(148,163,184,0.16)]"
             : "bg-white border-gray-200 shadow-xl"
         }`}
       >
 
         {/* Header */}
-        <div className={`px-6 py-5 border-b flex justify-between items-center ${dark ? "bg-slate-800 border-slate-700" : "bg-gray-50 border-gray-200"}`}>
-          <h2 className={`text-xl font-semibold ${dark ? "text-slate-100" : "text-gray-800"}`}>Add New Transaction</h2>
+        <div className={`px-6 py-5 border-b flex justify-between items-center ${gradient ? "bg-slate-800/50 border-purple-700/30" : dark ? "bg-slate-800 border-slate-700" : "bg-gray-50 border-gray-200"}`}>
+          <h2 className={`text-xl font-semibold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-gray-800"}`}>Add New Transaction</h2>
           <button 
             onClick={onClose}
-            className={`text-3xl leading-none transition-colors ${dark ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}
+            className={`text-3xl leading-none transition-colors ${gradient ? "text-purple-300 hover:text-purple-100" : dark ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}
           >
             ×
           </button>
@@ -106,7 +91,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
             
             {/* Type Selection */}
             <div>
-              <label className={`block text-sm font-medium mb-3 ${dark ? "text-slate-300" : "text-gray-700"}`}>Type</label>
+              <label className={`block text-sm font-medium mb-3 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-700"}`}>Type</label>
               <div className="grid grid-cols-2 gap-3">
                 {transactionTypes.map((t) => (
                   <button
@@ -118,7 +103,9 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
                         ? t.color === "green" 
                           ? "bg-green-600 text-white" 
                           : "bg-red-600 text-white"
-                        : dark
+                        : gradient
+                          ? "bg-slate-800/50 hover:bg-slate-700/50 text-purple-100 border border-purple-700/30"
+                          : dark
                           ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
                           : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
@@ -131,28 +118,28 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
 
             {/* Description */}
             <div>
-              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Description</label>
+              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Description</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g. Grocery shopping"
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white placeholder:text-purple-300" : dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
                 required
               />
             </div>
 
             {/* Amount */}
             <div>
-              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Amount (Rs.)</label>
+              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Amount (Rs.)</label>
               <input
                 type="number"
                 name="amount"
                 value={formData.amount}
                 onChange={handleChange}
                 placeholder="0.00"
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white placeholder:text-purple-300" : dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
                 required
               />
             </div>
@@ -160,12 +147,12 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
             {/* Category & Payment Method */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Category</label>
+                <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Category</label>
                 <select
                   name="categoryId"
                   value={formData.categoryId}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
+                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
                   required
                 >
                   <option value="">Select Category</option>
@@ -176,12 +163,12 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Payment Method</label>
+                <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Payment Method</label>
                 <select
                   name="reason"
                   value={formData.reason}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
+                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
                 >
                   {paymentMethods.map(method => (
                     <option key={method.value} value={method.value}>{method.label}</option>
@@ -190,29 +177,15 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
               </div>
             </div>
 
-            {/* Source */}
-            <div>
-              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Source / Merchant</label>
-              <input
-                type="text"
-                name="source"
-                value={formData.source}
-                onChange={handleChange}
-                placeholder="e.g. Big Mart, Vianet"
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
-                required
-              />
-            </div>
-
             {/* Date */}
             <div>
-              <label className={`block text-sm font-medium mb-1 ${dark ? "text-slate-300" : "text-gray-600"}`}>Date</label>
+              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Date & Time</label>
               <input
-                type="date"
+                type="datetime-local"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
+                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
               />
             </div>
 
@@ -221,7 +194,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
               <button
                 type="button"
                 onClick={onClose}
-                className={`flex-1 py-3.5 border rounded-2xl font-medium transition-colors ${dark ? "border-slate-700 text-slate-200 hover:bg-slate-800" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+                className={`flex-1 py-3.5 border rounded-2xl font-medium transition-colors ${gradient ? "border-purple-700/50 text-purple-200 hover:bg-purple-600/20" : dark ? "border-slate-700 text-slate-200 hover:bg-slate-800" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
               >
                 Cancel
               </button>

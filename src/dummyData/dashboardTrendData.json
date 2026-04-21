@@ -1,0 +1,25 @@
+{
+  "daily": [
+    { "label": "Mon", "income": 420, "expense": 310 },
+    { "label": "Tue", "income": 580, "expense": 360 },
+    { "label": "Wed", "income": 460, "expense": 420 },
+    { "label": "Thu", "income": 620, "expense": 390 },
+    { "label": "Fri", "income": 710, "expense": 520 },
+    { "label": "Sat", "income": 680, "expense": 610 },
+    { "label": "Sun", "income": 540, "expense": 470 }
+  ],
+  "weekly": [
+    { "label": "W1", "income": 3200, "expense": 2400 },
+    { "label": "W2", "income": 3600, "expense": 2700 },
+    { "label": "W3", "income": 3400, "expense": 2900 },
+    { "label": "W4", "income": 3900, "expense": 3050 }
+  ],
+  "monthly": [
+    { "label": "Jan", "income": 8200, "expense": 6100 },
+    { "label": "Feb", "income": 8700, "expense": 6400 },
+    { "label": "Mar", "income": 9100, "expense": 6800 },
+    { "label": "Apr", "income": 9400, "expense": 7200 },
+    { "label": "May", "income": 9800, "expense": 7600 },
+    { "label": "Jun", "income": 10200, "expense": 7900 }
+  ]
+}

@@ -14,7 +14,16 @@
   --text: white;
 }
 
+.gradient {
+  --bg: linear-gradient(135deg, #2d1b4e 0%, #1a0f3f 25%, #3d1a5c 50%, #2d1b4e 75%, #1a0f3f 100%);
+  --text: white;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
+}
+
+.gradient body {
+  background-attachment: fixed;
 }

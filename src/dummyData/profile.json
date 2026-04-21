@@ -1,0 +1,14 @@
+{
+  "name": "Suman Shrestha",
+  "role": "Finance Manager",
+  "email": "suman.shrestha@example.com",
+  "phone": "+977 98123 45678",
+  "location": "Kathmandu, Nepal",
+  "joined": "Jan 2024",
+  "bio": "Finance-focused professional tracking monthly spending, savings goals, and budget performance.",
+  "stats": [
+    { "label": "Monthly Budget", "value": "Rs. 8,500" },
+    { "label": "Monthly Savings", "value": "Rs. 2,430" },
+    { "label": "Active Goals", "value": "6" }
+  ]
+}

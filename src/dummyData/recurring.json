@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "title": "Netflix Subscription",
+      "category": "Entertainment",
+      "method": "ESEWA",
+      "frequency": "Monthly",
+      "nextDate": "2026-05-03",
+      "amount": 1499,
+      "type": "EXPENSE"
+    },
+    {
+      "id": 2,
+      "title": "Gym Membership",
+      "category": "Health",
+      "method": "CASH",
+      "frequency": "Monthly",
+      "nextDate": "2026-05-08",
+      "amount": 2500,
+      "type": "EXPENSE"
+    },
+    {
+      "id": 3,
+      "title": "Freelance Retainer",
+      "category": "Income",
+      "method": "MOBILE_BANKING",
+      "frequency": "Monthly",
+      "nextDate": "2026-05-10",
+      "amount": 32000,
+      "type": "INCOME"
+    }
+  ],
+  "methods": ["CASH", "ESEWA", "KHALTI", "MOBILE_BANKING"],
+  "frequencies": ["Weekly", "Monthly", "Quarterly", "Yearly"]
+}

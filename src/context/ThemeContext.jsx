@@ -3,27 +3,37 @@ import { createContext, useContext, useState, useEffect } from "react";
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [dark, setDark] = useState(false);
+  const [theme, setTheme] = useState("light"); // "light", "dark", "gradient"
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    if (saved === "dark") setDark(true);
+    if (saved) setTheme(saved);
   }, []);
 
   useEffect(() => {
-    if (dark) {
-      document.body.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.body.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [dark]);
+    document.body.className = theme;
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
-  const toggleTheme = () => setDark(prev => !prev);
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      if (prev === "light") return "dark";
+      if (prev === "dark") return "gradient";
+      return "light";
+    });
+  };
+
+  const setThemeMode = (mode) => {
+    if (mode === "light" || mode === "dark" || mode === "gradient") {
+      setTheme(mode);
+    }
+  };
+
+  const dark = theme === "dark";
+  const gradient = theme === "gradient";
 
   return (
-    <ThemeContext.Provider value={{ dark, toggleTheme }}>
+    <ThemeContext.Provider value={{ dark, gradient, theme, toggleTheme, setThemeMode }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "title": "Electricity Bill",
+      "provider": "NEA",
+      "dueDate": "2026-05-05",
+      "amount": 2100,
+      "status": "Upcoming"
+    },
+    {
+      "id": 2,
+      "title": "Internet Bill",
+      "provider": "Vianet",
+      "dueDate": "2026-05-02",
+      "amount": 1600,
+      "status": "Due Soon"
+    },
+    {
+      "id": 3,
+      "title": "Credit Card",
+      "provider": "Nabil Bank",
+      "dueDate": "2026-04-28",
+      "amount": 7800,
+      "status": "Overdue"
+    }
+  ],
+  "statuses": ["Upcoming", "Due Soon", "Overdue"]
+}

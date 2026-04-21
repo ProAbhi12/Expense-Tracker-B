@@ -1,0 +1,12 @@
+{
+  "paymentMethods": [
+    { "value": "CASH", "label": "Cash" },
+    { "value": "ESEWA", "label": "eSewa" },
+    { "value": "KHALTI", "label": "Khalti" },
+    { "value": "MOBILE_BANKING", "label": "Mobile Banking" }
+  ],
+  "transactionTypes": [
+    { "value": "INCOME", "label": "Income", "color": "green" },
+    { "value": "EXPENSE", "label": "Expense", "color": "red" }
+  ]
+}

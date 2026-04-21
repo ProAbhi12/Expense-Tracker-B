@@ -6,11 +6,14 @@ export default function TransactionFilters({
   searchTerm, 
   setSearchTerm,
   dark,
+  gradient,
 }) {
   return (
     <div
       className={`flex flex-col md:flex-row gap-4 p-4 rounded-xl border transition ${
-        dark
+        gradient
+          ? "bg-slate-900/40 border-purple-700/40 backdrop-blur-sm shadow-[0_8px_24px_rgba(147,51,234,0.15)]"
+          : dark
           ? "bg-slate-900 border-slate-700 shadow-[0_8px_24px_rgba(148,163,184,0.12)]"
           : "bg-white border-gray-200 shadow-sm"
       }`}
@@ -23,7 +26,9 @@ export default function TransactionFilters({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            dark
+            gradient
+              ? "bg-slate-800/50 border-purple-700/50 text-white placeholder:text-purple-300"
+              : dark
               ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400"
               : "bg-white border-gray-300 text-gray-800"
           }`}
@@ -37,7 +42,9 @@ export default function TransactionFilters({
           className={`px-5 py-3 rounded-lg font-medium transition-all ${
             filterType === "ALL" 
               ? "bg-blue-600 text-white" 
-              : dark
+              : gradient
+                ? "bg-slate-800/50 hover:bg-slate-700/50 text-purple-100 border border-purple-700/30"
+                : dark
                 ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}
@@ -49,7 +56,9 @@ export default function TransactionFilters({
           className={`px-5 py-3 rounded-lg font-medium transition-all ${
             filterType === "INCOME" 
               ? "bg-green-600 text-white" 
-              : dark
+              : gradient
+                ? "bg-slate-800/50 hover:bg-slate-700/50 text-purple-100 border border-purple-700/30"
+                : dark
                 ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}
@@ -61,7 +70,9 @@ export default function TransactionFilters({
           className={`px-5 py-3 rounded-lg font-medium transition-all ${
             filterType === "EXPENSE" 
               ? "bg-red-600 text-white" 
-              : dark
+              : gradient
+                ? "bg-slate-800/50 hover:bg-slate-700/50 text-purple-100 border border-purple-700/30"
+                : dark
                 ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}
