@@ -9,6 +9,8 @@ import Recurring from "./pages/Recurring";
 import BillReminder from "./pages/BillReminder";
 import { ThemeProvider } from "./context/ThemeContext";
 import { useTheme } from "./context/ThemeContext";
+import NotFound from "./components/NotFound";
+
 
 function SettingsPlaceholder() {
   const { dark } = useTheme();
@@ -39,7 +41,9 @@ function App() {
           element={<SettingsPlaceholder />}
         />
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
+
     </ThemeProvider>
   );
 }
