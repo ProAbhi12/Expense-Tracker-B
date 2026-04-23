@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TransactionTable from '../components/TransactionTable';
 import TransactionFilters from '../components/TransactionFIlters';
 import AddTransactionModal from '../components/AddTransactionModal';   // Make sure this path is correct
+import AddButton from '../components/AddButton';
 import { useTheme } from "../context/ThemeContext";
 import sharedTransactions from "../dummyData/transactions.json";
 
@@ -48,12 +49,13 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className={`text-3xl font-bold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-gray-800"}`}>Transactions</h1>
-        <button 
+        <AddButton
           onClick={() => setIsModalOpen(true)}
-          className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium ${dark ? "shadow-[0_8px_24px_rgba(96,165,250,0.25)]" : "shadow-sm"}`}
+          size="lg"
+          className={dark ? 'shadow-[0_8px_24px_rgba(96,165,250,0.25)]' : 'shadow-sm'}
         >
           + Add Transaction
-        </button>
+        </AddButton>
       </div>
 
       {/* Filters */}
