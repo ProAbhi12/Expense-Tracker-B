@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
 
@@ -26,4 +27,72 @@ body {
 
 .gradient body {
   background-attachment: fixed;
+}
+
+.landing-page {
+  font-family: "Manrope", sans-serif;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(20, 184, 166, 0.14), transparent 34%),
+    radial-gradient(circle at 88% 14%, rgba(245, 158, 11, 0.15), transparent 33%),
+    linear-gradient(145deg, #fffef9 0%, #f3f8ff 52%, #fff6ed 100%);
+}
+
+.landing-brand,
+.landing-display,
+.landing-metric {
+  font-family: "Sora", sans-serif;
+}
+
+.landing-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  pointer-events: none;
+  animation: landingFloat 8s ease-in-out infinite;
+}
+
+.landing-orb-a {
+  width: 17rem;
+  height: 17rem;
+  top: -4rem;
+  right: -5rem;
+  background: rgba(20, 184, 166, 0.2);
+}
+
+.landing-orb-b {
+  width: 20rem;
+  height: 20rem;
+  bottom: -8rem;
+  left: -7rem;
+  background: rgba(245, 158, 11, 0.2);
+  animation-delay: 0.9s;
+}
+
+.landing-fade-up {
+  animation: landingFadeUp 0.7s ease-out both;
+}
+
+.landing-delay {
+  animation-delay: 0.2s;
+}
+
+@keyframes landingFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landingFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.03);
+  }
 }

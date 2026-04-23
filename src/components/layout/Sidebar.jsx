@@ -19,13 +19,12 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
   const { dark, gradient } = useTheme();
 
   const menuItems = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
-    { name: "Transactions", path: "/transactions", icon: ArrowLeftRight },
-    { name: "Categories", path: "/categories", icon: Tags },
-    { name: "Recurring", path: "/recurring", icon: Repeat2 },
-    { name: "Bill Reminder", path: "/bill-reminder", icon: BellRing },
-    { name: "Reports", path: "/reports", icon: PieChart },
-    { name: "Profile", icon: UserCircle2, action: "profile" },
+    { name: "Dashboard", path: "/app", icon: LayoutDashboard },
+    { name: "Transactions", path: "/app/transactions", icon: ArrowLeftRight },
+    { name: "Categories", path: "/app/categories", icon: Tags },
+    { name: "Recurring", path: "/app/recurring", icon: Repeat2 },
+    { name: "Bill Reminder", path: "/app/bill-reminder", icon: BellRing },
+    { name: "Reports", path: "/app/reports", icon: PieChart },
   ];
 
   return (
@@ -68,7 +67,7 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
       <nav className="mt-4 px-3 space-y-1">
         {menuItems.map((item , index) => {
           const isProfileAction = item.action === "profile";
-          const isActive = !isProfileAction && location.pathname === item.path;
+          const isActive = !isProfileAction && (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`));
 
           if (isProfileAction) {
             return (
@@ -128,7 +127,7 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
         }`}
       >
         <Link
-          to="/settings"
+          to="/app/settings"
           className={`flex items-center px-4 py-2 rounded-md transition-colors ${
             gradient
               ? "text-purple-200 hover:bg-purple-600/30 hover:text-purple-100"

@@ -7,6 +7,7 @@ import Budgets from "./pages/Category";
 import Reports from "./pages/Reports";
 import Recurring from "./pages/Recurring";
 import BillReminder from "./pages/BillReminder";
+import Landing from "./pages/Landing";
 import { ThemeProvider } from "./context/ThemeContext";
 import { useTheme } from "./context/ThemeContext";
 import NotFound from "./components/NotFound";
@@ -26,12 +27,13 @@ function App() {
   return (
     <ThemeProvider>
     <Routes>
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/" element={<Landing />} />
+      <Route path="/app" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="transactions" element={<Transactions />} />
         <Route
           path="categories"
-          element={<Budgets />}
+          element={<Budgets />} 
         />
         <Route path="recurring" element={<Recurring />} />
         <Route path="bill-reminder" element={<BillReminder />} />
@@ -41,7 +43,9 @@ function App() {
           element={<SettingsPlaceholder />}
         />
       </Route>
-      <Route path="*" element={<NotFound />} />
+      <Route element={<MainLayout />}>
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
 
     </ThemeProvider>
