@@ -12,6 +12,7 @@ import {
   Repeat2,
   BellRing,
 } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
   const location = useLocation();
@@ -66,7 +67,11 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
       <nav className="mt-4 px-3 space-y-1">
         {menuItems.map((item , index) => {
           const isProfileAction = item.action === "profile";
-          const isActive = !isProfileAction && (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`));
+          const isDashboardItem = item.path === "/app";
+          const isActive =
+            !isProfileAction &&
+            (location.pathname === item.path ||
+              (!isDashboardItem && location.pathname.startsWith(`${item.path}/`)));
 
           if (isProfileAction) {
             return (

@@ -8,6 +8,10 @@ const mockCategories = categoryData.categoryOptions.map((item, index) => ({
   id: index + 1,
   name: item.category,
 }));
+const generateTransactionId = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `tx-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
 
 export default function AddTransactionModal({ isOpen, onClose, onAdd, dark, gradient }) {
   const [formData, setFormData] = useState({
@@ -32,7 +36,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark, grad
     }
 
     const newTransaction = {
-      id: Date.now(),
+      id: generateTransactionId(),
       name: formData.name,
       type: formData.type,
       categoryId: parseInt(formData.categoryId),

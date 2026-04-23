@@ -1,5 +1,6 @@
 import React, { createContext,useCallback, useContext, 
     useMemo, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
 import categoryData from '../dummyData/categoryData.json';
 import transactionsData from '../dummyData/transactions.json';
 
