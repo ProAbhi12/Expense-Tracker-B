@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ArrowLeftRight,
   Settings,
   PieChart,
   Tags,
-  Menu,
   TrendingUp,
   UserCircle2,
   Repeat2,
@@ -37,7 +37,11 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
           : "bg-white border-gray-200"
       } ${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      } md:relative md:translate-x-0`}
+      } md:relative md:translate-x-0 ${
+        dark 
+          ? "bg-slate-900 border-slate-800" 
+          : "bg-white border-gray-200"
+      }`}
     >
       <div
         className={`flex items-center justify-between h-16 px-6 border-b ${
@@ -64,6 +68,7 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
         </button>
       </div>
 
+      {/* Navigation Links */}
       <nav className="mt-4 px-3 space-y-1">
         {menuItems.map((item , index) => {
           const isProfileAction = item.action === "profile";
@@ -100,7 +105,7 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
             <Link
               key={index}
               to={item.path}
-              className={`flex items-center px-4 py-2.5 rounded-md transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? gradient
                     ? "bg-purple-500/30 text-purple-200 font-semibold"
@@ -114,8 +119,8 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
                     : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
               }`}
             >
-              <item.icon className="mr-3" size={18} />
-              <span className="text-sm">{item.name}</span>
+              <item.icon className={`mr-3 transition-colors ${isActive ? "text-white" : "group-hover:text-blue-500"}`} size={18} />
+              <span className={`text-sm font-semibold`}>{item.name}</span>
             </Link>
           );
         })}
@@ -141,7 +146,7 @@ const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
           }`}
         >
           <Settings className="mr-3" size={18} />
-          <span className="text-sm">Settings</span>
+          <span className="text-sm font-semibold">Settings</span>
         </Link>
       </div>
     </div>

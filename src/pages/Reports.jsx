@@ -1,4 +1,18 @@
-import React from "react";
+import React, { useMemo } from "react";
+import {
+  PieChart,
+  Pie,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import {
   Bar,

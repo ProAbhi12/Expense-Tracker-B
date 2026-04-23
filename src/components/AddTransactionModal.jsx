@@ -1,216 +1,208 @@
 import React, { useState } from 'react';
-import transactionFormData from '../dummyData/transactionFormData.json';
-import categoryData from '../dummyData/categoryData.json';
+import { X, ArrowUpCircle, ArrowDownCircle, Calendar } from 'lucide-react';
 
-const paymentMethods = transactionFormData.paymentMethods;
-const transactionTypes = transactionFormData.transactionTypes;
-const mockCategories = categoryData.categoryOptions.map((item, index) => ({
-  id: index + 1,
-  name: item.category,
-}));
-const generateTransactionId = () =>
-  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-    ? crypto.randomUUID()
-    : `tx-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+const transactionTypes = [
+  { value: "INCOME", label: "Income", icon: ArrowUpCircle },
+  { value: "EXPENSE", label: "Expense", icon: ArrowDownCircle },
+];
+
+const paymentMethods = [
+  { value: "CASH", label: "Cash" },  
+  { value: "ESEWA", label: "eSewa" },
+  { value: "KHALTI", label: "Khalti" },
+  { value: "MOBILE_BANKING", label: "Mobile Banking" },
+];
+
+const mockCategories = [
+  { id: 1, name: "Food & Drinks" },
+  { id: 2, name: "Rent & Bills" },
+  { id: 3, name: "Transportation" },
+  { id: 4, name: "Entertainment" },
+  { id: 5, name: "Salary" },
+  { id: 6, name: "Shopping" },
+  { id: 7, name: "Others" },
+];
 
 export default function AddTransactionModal({ isOpen, onClose, onAdd, dark, gradient }) {
   const [formData, setFormData] = useState({
     name: "",
     type: "EXPENSE",
-    categoryId: "",
-    reason: "CASH",
-    date: new Date().toISOString().slice(0, 16),
+    categoryId: "1",
     amount: "",
+    paymentMethod: "CASH",
+    date: new Date().toISOString().split('T')[0],
   });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.categoryId || !formData.amount) {
-      alert("Please fill all required fields!");
-      return;
-    }
-
-    const newTransaction = {
-      id: generateTransactionId(),
-      name: formData.name,
-      type: formData.type,
-      categoryId: parseInt(formData.categoryId),
-      category: mockCategories.find(cat => cat.id === parseInt(formData.categoryId)),
-      reason: formData.reason,
-      date: formData.date,
-      amount: parseFloat(formData.amount),
-    };
-
-    onAdd(newTransaction);
-    resetForm();
-    onClose();
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      type: "EXPENSE",
-      categoryId: "",
-      reason: "CASH",
-      date: new Date().toISOString().slice(0, 16),
-      amount: "",
-    });
-  };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-      
-      {/* Increased top and bottom margin using my-12 and max-h */}
-      <div
-        className={`rounded-3xl w-full max-w-md my-12 max-h-[90vh] overflow-hidden border ${
-          gradient
-            ? "bg-slate-900/60 border-purple-700/40 backdrop-blur-sm shadow-[0_12px_32px_rgba(147,51,234,0.2)]"
-            : dark
-            ? "bg-slate-900 border-slate-700 shadow-[0_12px_32px_rgba(148,163,184,0.16)]"
-            : "bg-white border-gray-200 shadow-xl"
-        }`}
-      >
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.amount) return;
 
-        {/* Header */}
-        <div className={`px-6 py-5 border-b flex justify-between items-center ${gradient ? "bg-slate-800/50 border-purple-700/30" : dark ? "bg-slate-800 border-slate-700" : "bg-gray-50 border-gray-200"}`}>
-          <h2 className={`text-xl font-semibold ${gradient ? "text-white" : dark ? "text-slate-100" : "text-gray-800"}`}>Add New Transaction</h2>
-          <button 
-            onClick={onClose}
-            className={`text-3xl leading-none transition-colors ${gradient ? "text-purple-300 hover:text-purple-100" : dark ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}
-          >
-            ×
+    const newTransaction = {
+      ...formData,
+      id: Date.now(),
+      amount: parseFloat(formData.amount),
+      category: { name: mockCategories.find(c => c.id === parseInt(formData.categoryId))?.name }
+    };
+
+    onAdd(newTransaction);
+    onClose();
+  };
+
+  const addQuickAmount = (amt) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      amount: (parseFloat(prev.amount || 0) + amt).toString() 
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm overflow-y-auto">
+      <div className={`w-full max-w-md my-8 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-100"}`}>
+        
+        {/* Creative Header */}
+        <div className={`p-6 text-white flex justify-between items-center transition-colors duration-300 ${formData.type === 'EXPENSE' ? 'bg-red-600' : 'bg-green-600'}`}>
+          <div>
+            <h2 className="text-xl font-bold text-white">Add New Entry</h2>
+            <p className="text-white/80 text-xs mt-1 font-medium">Record your financial flow</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg text-white">
+            <X size={20} />
           </button>
         </div>
 
-        {/* Form - Scrollable if needed */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            
-            {/* Type Selection */}
-            <div>
-              <label className={`block text-sm font-medium mb-3 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-700"}`}>Type</label>
-              <div className="grid grid-cols-2 gap-3">
-                {transactionTypes.map((t) => (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, type: t.value }))}
-                    className={`py-3.5 rounded-2xl font-medium transition-all ${
-                      formData.type === t.value
-                        ? t.color === "green" 
-                          ? "bg-green-600 text-white" 
-                          : "bg-red-600 text-white"
-                        : gradient
-                          ? "bg-slate-800/50 hover:bg-slate-700/50 text-purple-100 border border-purple-700/30"
-                          : dark
-                          ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Description</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g. Grocery shopping"
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white placeholder:text-purple-300" : dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
-                required
-              />
-            </div>
-
-            {/* Amount */}
-            <div>
-              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Amount (Rs.)</label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                placeholder="0.00"
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white placeholder:text-purple-300" : dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-300 text-gray-800"}`}
-                required
-              />
-            </div>
-
-            {/* Category & Payment Method */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Category</label>
-                <select
-                  name="categoryId"
-                  value={formData.categoryId}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {mockCategories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Payment Method</label>
-                <select
-                  name="reason"
-                  value={formData.reason}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
-                >
-                  {paymentMethods.map(method => (
-                    <option key={method.value} value={method.value}>{method.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Date */}
-            <div>
-              <label className={`block text-sm font-medium mb-1 ${gradient ? "text-purple-200" : dark ? "text-slate-300" : "text-gray-600"}`}>Date & Time</label>
-              <input
-                type="datetime-local"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${gradient ? "bg-slate-800/50 border-purple-700/50 text-white" : dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-300 text-gray-800"}`}
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-3 pt-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Type Switcher */}
+          <div className={`flex p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-gray-100"}`}>
+            {transactionTypes.map((t) => (
               <button
+                key={t.value}
                 type="button"
-                onClick={onClose}
-                className={`flex-1 py-3.5 border rounded-2xl font-medium transition-colors ${gradient ? "border-purple-700/50 text-purple-200 hover:bg-purple-600/20" : dark ? "border-slate-700 text-slate-200 hover:bg-slate-800" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+                onClick={() => setFormData({ ...formData, type: t.value })}
+                className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg text-sm font-bold transition-all ${
+                  formData.type === t.value 
+                    ? `bg-white shadow-sm ${t.value === 'EXPENSE' ? 'text-red-600' : 'text-green-600'}` 
+                    : 'text-gray-500'
+                }`}
               >
-                Cancel
+                <t.icon size={16} />
+                <span>{t.label}</span>
               </button>
-              <button
-                type="submit"
-                className="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-medium transition-colors"
-              >
-                Add Transaction
-              </button>
+            ))}
+          </div>
+
+          {/* Amount Input */}
+          <div>
+            <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Amount</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs.</span>
+              <input 
+                type="number" 
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                placeholder="0.00" 
+                className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-xl font-bold focus:outline-none focus:ring-4 transition-all ${
+                  dark 
+                    ? "bg-slate-800 border-slate-700 text-white focus:border-blue-500/30 focus:ring-blue-500/5" 
+                    : "bg-gray-50 border-gray-100 text-gray-800 focus:border-blue-500/30 focus:ring-blue-500/5"
+                }`}
+                required
+              />
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Quick Amount Buttons */}
+          <div className="flex flex-wrap gap-2">
+            {[100, 500, 1000, 5000].map(amt => (
+              <button 
+                key={amt} 
+                type="button"
+                onClick={() => addQuickAmount(amt)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  dark ? "bg-slate-800 text-slate-300 hover:bg-slate-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                +Rs. {amt}
+              </button>
+            ))}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Description</label>
+            <input 
+              type="text" 
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="What was this for?" 
+              className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+              }`}
+              required
+            />
+          </div>
+
+          {/* Category & Payment Method Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Category</label>
+              <select 
+                value={formData.categoryId}
+                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+                }`}
+              >
+                {mockCategories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Payment</label>
+              <select 
+                value={formData.paymentMethod}
+                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+                }`}
+              >
+                {paymentMethods.map(method => (
+                  <option key={method.value} value={method.value}>{method.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Date Picker */}
+          <div>
+            <label className={`block text-[10px] font-bold uppercase mb-2 ${dark ? "text-slate-400" : "text-gray-400"}`}>Transaction Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input 
+                type="date" 
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                  dark ? "bg-slate-800 border-slate-700 text-white focus:ring-blue-500/20" : "bg-white border-gray-200 text-gray-800 focus:ring-blue-500/20"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <button 
+            type="submit"
+            className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all active:scale-[0.98] ${
+              formData.type === 'EXPENSE' 
+                ? 'bg-red-600 hover:bg-red-700 shadow-red-600/20' 
+                : 'bg-green-600 hover:bg-green-700 shadow-green-600/20'
+            }`}
+          >
+            Save {formData.type === 'EXPENSE' ? 'Expense' : 'Income'}
+          </button>
+        </form>
       </div>
     </div>
   );

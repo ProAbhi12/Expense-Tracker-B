@@ -1,0 +1,10 @@
+# .NET Ignore
+[Bb]in/
+[Oo]bj/
+[Log]/
+.vs/
+*.user
+*.suo
+*.dotSettings
+bin/
+obj/
