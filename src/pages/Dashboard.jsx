@@ -79,6 +79,7 @@ const TransactionList = ({ dark, gradient }) => {
           <div className="flex gap-2">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchTerm}
@@ -143,6 +144,8 @@ const TransactionList = ({ dark, gradient }) => {
                 {formatCurrency(item.amount)}
               </p>
             </div>
+          </div>
+        ))}
           </div>
         ))}
       </div>

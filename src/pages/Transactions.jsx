@@ -12,7 +12,7 @@ const mockTransactions = sharedTransactions.map((tx) => ({
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState(mockTransactions);
-  const [isModalOpen, setIsModalOpen] = useState(false);        // ← This was missing!
+  const [isModalOpen, setIsModalOpen] = useState(false);     
   const [filterType, setFilterType] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
 
