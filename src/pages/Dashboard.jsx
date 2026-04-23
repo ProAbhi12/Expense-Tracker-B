@@ -25,16 +25,15 @@ import {
 } from "recharts";
 
 // ============================================
-// HELPER FUNCTIONS
+// HELPER FUNCTIONS & DATA
 // ============================================
 
 const data = [
-  { name: "Income", value: 10000 },
-  { name: "Expense", value: 5000 },
+  { name: "Income", value: 45000 },
+  { name: "Expense", value: 12500 },
 ];
 
-const renderPercentLabel = ({ percent }) =>
-  `${(percent * 100).toFixed(0)}%`;
+const renderPercentLabel = ({ percent }) => `${(percent * 100).toFixed(0)}%`;
 const INCOLORS = ["#22c55e", "#ef4444"];
 
 const trendDataByRange = {
@@ -70,48 +69,19 @@ const trendDataByRange = {
   ],
 };
 
-const formatCurrency = (amount) => {
-  return `Rs. ${amount.toLocaleString()}`;
-};
+const formatCurrency = (amount) => `Rs. ${amount.toLocaleString()}`;
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-NP", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return date.toLocaleDateString("en-NP", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const getCategoryColor = (category) => {
-  const colors = {
-    Food: "#f59e0b",
-    Shopping: "#8b5cf6",
-    Transport: "#3b82f6",
-    Entertainment: "#ec489a",
-    Utilities: "#10b981",
-    Health: "#ef4444",
-    Home: "#6366f1",
-    Coffee: "#d97706",
-    Income: "#06b6d4",
-  };
-  return colors[category] || "#6b7280";
-};
-
-// ============================================
-// TRANSACTION DATA
-// ============================================
 const transactions = [
   { id: 1, description: "Grocery Store", category: "Food", amount: 284.5, type: "expense", date: "2026-04-18" },
   { id: 2, description: "Salary Deposit", category: "Income", amount: 42500.0, type: "income", date: "2026-04-15" },
   { id: 3, description: "Netflix", category: "Entertainment", amount: 499.0, type: "expense", date: "2026-04-14" },
   { id: 4, description: "Coffee", category: "Food", amount: 150.0, type: "expense", date: "2026-04-17" },
 ];
-
-const totalIncome = 45000;
-const totalExpense = 12500;
-const balance = 32500;
-const expenseChange = { percent: "2.5", isDecrease: true };
 
 // ============================================
 // TRANSACTION LIST COMPONENT (Read Only)
@@ -134,7 +104,6 @@ const TransactionList = ({ dark }) => {
             <CreditCard size={18} className="text-blue-500" />
             Recent Transactions
           </h3>
-
           <div className="flex gap-2">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -143,7 +112,7 @@ const TransactionList = ({ dark }) => {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-9 pr-3 py-1.5 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400" : "bg-white border-gray-200 text-gray-800"}`}
+                className={`pl-9 pr-3 py-1.5 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}
               />
             </div>
             <select
@@ -158,7 +127,6 @@ const TransactionList = ({ dark }) => {
           </div>
         </div>
       </div>
-
       <div className={`divide-y ${dark ? "divide-slate-700" : "divide-gray-100"}`}>   
         {filteredTransactions.map((transaction) => (
           <div key={transaction.id} className={`p-4 transition ${dark ? "hover:bg-slate-800/70" : "hover:bg-gray-50"}`}>
@@ -169,7 +137,7 @@ const TransactionList = ({ dark }) => {
                 </div>
                 <div>
                   <p className={`font-medium ${dark ? "text-slate-100" : "text-gray-800"}`}>{transaction.description}</p>
-                  <p className="text-xs text-gray-400">{transaction.date}</p>
+                  <p className="text-xs text-gray-400">{formatDate(transaction.date)}</p>
                 </div>
               </div>
               <span className={`font-semibold ${transaction.type === "expense" ? "text-red-600" : "text-green-600"}`}>
@@ -208,7 +176,7 @@ const Dashboard = () => {
             <p className="text-blue-100 text-sm font-medium">Total Balance</p>
             <Wallet size={20} />
           </div>
-          <h3 className="text-3xl font-bold">{formatCurrency(balance)}</h3>
+          <h3 className="text-3xl font-bold">{formatCurrency(32500)}</h3>
           <div className="mt-4 flex items-center text-blue-100 text-xs font-medium">
             <TrendingUp size={14} className="mr-1" />
             <span>+2.5% from last week</span>
@@ -220,7 +188,7 @@ const Dashboard = () => {
             <p className="text-gray-500 text-sm font-medium">Monthly Income</p>
             <ArrowUpRight size={20} className="text-green-500" />
           </div>
-          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>{formatCurrency(totalIncome)}</h3>
+          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>{formatCurrency(45000)}</h3>
           <p className="text-green-600 text-xs font-bold mt-2">+ Rs. 5,000</p>
         </div>
 
@@ -229,7 +197,7 @@ const Dashboard = () => {
             <p className="text-gray-500 text-sm font-medium">Monthly Expenses</p>
             <ArrowDownRight size={20} className="text-red-500" />
           </div>
-          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>{formatCurrency(totalExpense)}</h3>
+          <h3 className={`text-2xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}>{formatCurrency(12500)}</h3>
           <p className="text-red-600 text-xs font-bold mt-2">- Rs. 1,200</p>
         </div>
       </div>
@@ -237,7 +205,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className={`p-6 rounded-xl border ${dark ? "bg-slate-900 border-slate-700 shadow-lg" : "bg-white border-gray-200 shadow-sm"}`}>
           <h3 className={`font-bold mb-4 ${dark ? "text-slate-100" : "text-gray-800"}`}>Income vs Expense</h3>
-          <div className="w-full h-[300px]">
+          <div className="w-full h-75">
             <ResponsiveContainer>
               <PieChart>
                 <Pie data={data} cx="50%" cy="50%" label={renderPercentLabel} innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value">
@@ -263,7 +231,7 @@ const Dashboard = () => {
               ))}
             </div>
           </div>
-          <div className="w-full h-[300px]">
+          <div className="w-full h-75">
             <ResponsiveContainer>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
