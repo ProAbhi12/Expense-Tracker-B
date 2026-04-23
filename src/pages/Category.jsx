@@ -185,7 +185,7 @@ const AddBudgetModal = ({ onClose, gradient }) => {
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button className={`inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-medium transition ${gradient ? "border-purple-700/50 bg-slate-800/50 text-purple-200 hover:bg-purple-600/20" : dark ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:bg-slate-50"}`} onClick={onClose}>Cancel</button>
           <button
-            className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700"
+            className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition ${gradient ? "bg-purple-600 hover:bg-purple-700 shadow-purple-900/30" : dark ? "bg-blue-500 hover:bg-blue-600 shadow-blue-900/30" : "bg-blue-600 hover:bg-blue-700"}`}
             onClick={onSubmit}
           >
             Add Category
@@ -271,7 +271,7 @@ const Budgets = () => {
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <h2 className={`m-0 text-xl font-bold tracking-tight ${gradient ? "text-white" : dark ? "text-slate-100" : "text-slate-900"}`}>Budget Categories</h2>
-        <button className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition ${dark ? "border-blue-400/30 bg-blue-500/15 text-blue-300 hover:bg-blue-600 hover:text-white" : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white"}`} onClick={() => setShowModal(true)}>
+        <button className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition ${gradient ? "border-purple-500/40 bg-purple-500/20 text-purple-200 hover:bg-purple-600 hover:text-white" : dark ? "border-blue-400/30 bg-blue-500/15 text-blue-300 hover:bg-blue-600 hover:text-white" : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white"}`} onClick={() => setShowModal(true)}>
           <Plus size={14} /> Add Category
         </button>
       </div>

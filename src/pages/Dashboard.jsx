@@ -147,11 +147,10 @@ const TransactionList = ({ dark, gradient }) => {
           </div>
         ))}
           </div>
-        ))}
+
       </div>
-    </div>
-  );
-};
+
+      );
 
 const Dashboard = () => {
   const { dark, gradient } = useTheme();
@@ -339,5 +338,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
+}
 export default Dashboard;
