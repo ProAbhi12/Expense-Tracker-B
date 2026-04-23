@@ -11,8 +11,8 @@ import {
   UserCircle2,
   Repeat2,
   BellRing,
+  Menu,
 } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
 
 const Sidebar = ({ isOpen, toggleSidebar, openProfileModal }) => {
   const location = useLocation();

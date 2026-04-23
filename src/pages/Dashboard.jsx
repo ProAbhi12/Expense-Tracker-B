@@ -151,7 +151,7 @@ const TransactionList = ({ dark, gradient }) => {
       </div>
 
       );
-
+    }
 const Dashboard = () => {
   const { dark, gradient } = useTheme();
   const [trendRange, setTrendRange] = useState("monthly");
@@ -338,5 +338,5 @@ const Dashboard = () => {
     </div>
   );
 };
-}
+
 export default Dashboard;
