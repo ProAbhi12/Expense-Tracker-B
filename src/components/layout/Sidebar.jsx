@@ -27,18 +27,20 @@ const Sidebar = ({ isOpen }) => {
       className={`fixed inset-y-0 left-0 z-50 w-72 border-r transform transition-all duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } md:relative md:translate-x-0 ${
-        dark 
-          ? "bg-slate-900 border-slate-800" 
-          : "bg-white border-gray-200"
+        dark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"
       }`}
     >
       {/* Logo Section */}
-      <div className={`flex items-center justify-between h-16 px-6 border-b ${dark ? "border-slate-800" : "border-gray-100"}`}>
+      <div
+        className={`flex items-center justify-between h-16 px-6 border-b ${dark ? "border-slate-800" : "border-gray-100"}`}
+      >
         <div className="flex items-center space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
           <div className="shrink-0 w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
             <TrendingUp className="text-white" size={18} />
           </div>
-          <span className={`text-lg font-bold tracking-tight ${dark ? "text-slate-100" : "text-gray-800"}`}>
+          <span
+            className={`text-lg font-bold tracking-tight ${dark ? "text-slate-100" : "text-gray-800"}`}
+          >
             ExpenseTracker
           </span>
         </div>
@@ -60,7 +62,10 @@ const Sidebar = ({ isOpen }) => {
                     : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
               }`}
             >
-              <item.icon className={`mr-3 transition-colors ${isActive ? "text-white" : "group-hover:text-blue-500"}`} size={18} />
+              <item.icon
+                className={`mr-3 transition-colors ${isActive ? "text-white" : "group-hover:text-blue-500"}`}
+                size={18}
+              />
               <span className={`text-sm font-semibold`}>{item.name}</span>
             </Link>
           );
@@ -68,7 +73,9 @@ const Sidebar = ({ isOpen }) => {
       </nav>
 
       {/* Bottom Settings Link */}
-      <div className={`absolute bottom-0 w-full p-4 border-t ${dark ? "border-slate-800" : "border-gray-100"}`}>
+      <div
+        className={`absolute bottom-0 w-full p-4 border-t ${dark ? "border-slate-800" : "border-gray-100"}`}
+      >
         <Link
           to="/settings"
           className={`flex items-center px-4 py-2 rounded-xl transition-all ${
