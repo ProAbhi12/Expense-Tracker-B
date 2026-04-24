@@ -29,10 +29,14 @@ const Sidebar = ({ isOpen }) => {
         dark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"
       }`}
     >
+<<<<<<< abhisekh
       {/* Logo Section */}
       <div
         className={`flex items-center justify-between h-16 px-6 border-b ${dark ? "border-slate-800" : "border-gray-100"}`}
       >
+=======
+      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100">
+>>>>>>> teamlead
         <div className="flex items-center space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
           <div className="shrink-0 w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
             <TrendingUp className="text-white" size={18} />
