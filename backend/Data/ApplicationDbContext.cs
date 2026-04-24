@@ -27,9 +27,9 @@ namespace backend.Data
             var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             modelBuilder.Entity<Category>().HasData(
-                new Category { CategoryId = 1, CategoryName = "Food & Drinks", Type = Models.Enums.TransactionTypeEnum.EXPENSE, Color = "#ef4444", CreatedAt = seedDate },
-                new Category { CategoryId = 2, CategoryName = "Utilities", Type = Models.Enums.TransactionTypeEnum.EXPENSE, Color = "#06b6d4", CreatedAt = seedDate },
-                new Category { CategoryId = 3, CategoryName = "Salary", Type = Models.Enums.TransactionTypeEnum.INCOME, Color = "#22c55e", CreatedAt = seedDate }
+                new Category { Id = 1, Name = "Food & Drinks", Type = Models.Enums.TransactionTypeEnum.EXPENSE, Color = "#ef4444", Budget = 3000, CreatedAt = seedDate, IsDefault = true },
+                new Category { Id = 2, Name = "Utilities", Type = Models.Enums.TransactionTypeEnum.EXPENSE, Color = "#06b6d4", Budget = 1500, CreatedAt = seedDate, IsDefault = true },
+                new Category { Id = 3, Name = "Salary", Type = Models.Enums.TransactionTypeEnum.INCOME, Color = "#22c55e", Budget = 50000, CreatedAt = seedDate, IsDefault = true }
             );
         }
     }

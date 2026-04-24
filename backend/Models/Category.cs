@@ -7,31 +7,29 @@ namespace backend.Models
     public class Category
     {
         [Key]
-        public int CategoryId { get; set; }
+        public int Id { get; set; } 
 
         [Required]
         [StringLength(100)]
-        public string CategoryName { get; set; } = string.Empty;
-
-        [StringLength(550)]
-        public string? Description { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Required]
         public TransactionTypeEnum Type { get; set; }
 
-        [StringLength(10)] 
+        [StringLength(50)] 
         public string? Icon { get; set; }
 
         [StringLength(7)]
         public string? Color { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal BudgetLimit { get; set; }
+        public decimal Budget { get; set; } 
 
         public bool IsDefault { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Relationship
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

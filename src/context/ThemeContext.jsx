@@ -20,7 +20,7 @@ export function ThemeProvider({ children }) {
     }
   }, [dark]);
 
-  const toggleTheme = () => setDark(prev => !prev);
+  const toggleTheme = () => setDark((prev) => !prev);
 
   return (
     <ThemeContext.Provider value={{ dark, toggleTheme }}>
