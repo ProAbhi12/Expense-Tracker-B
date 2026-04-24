@@ -8,9 +8,11 @@ import {
   Tags,
   TrendingUp,
 } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 const Sidebar = ({ isOpen }) => {
   const location = useLocation();
+  const { dark } = useTheme();
 
   const menuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
