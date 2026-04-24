@@ -553,7 +553,6 @@ const Budgets = () => {
           </div>
         </div>
       </div>
-
       {showModal && <AddBudgetModal onClose={() => setShowModal(false)} />}
     </div>
   );
