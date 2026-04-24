@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260423043704_InitialCreateV2")]
-    partial class InitialCreateV2
+    [Migration("20260424024906_UpdatedModels")]
+    partial class UpdatedModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,19 +27,14 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Category", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BudgetLimit")
+                    b.Property<decimal>("Budget")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Color")
                         .HasMaxLength(7)
@@ -50,64 +45,65 @@ namespace backend.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<string>("Icon")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.ToTable("Categories");
 
                     b.HasData(
                         new
                         {
-                            CategoryId = 1,
-                            BudgetLimit = 0m,
-                            CategoryName = "Food & Drinks",
+                            Id = 1,
+                            Budget = 3000m,
                             Color = "#ef4444",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
+                            IsDefault = true,
+                            Name = "Food & Drinks",
                             Type = 1
                         },
                         new
                         {
-                            CategoryId = 2,
-                            BudgetLimit = 0m,
-                            CategoryName = "Utilities",
+                            Id = 2,
+                            Budget = 1500m,
                             Color = "#06b6d4",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
+                            IsDefault = true,
+                            Name = "Utilities",
                             Type = 1
                         },
                         new
                         {
-                            CategoryId = 3,
-                            BudgetLimit = 0m,
-                            CategoryName = "Salary",
+                            Id = 3,
+                            Budget = 50000m,
                             Color = "#22c55e",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
+                            IsDefault = true,
+                            Name = "Salary",
                             Type = 0
                         });
                 });
 
             modelBuilder.Entity("backend.Models.Transaction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TransactionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
@@ -126,10 +122,6 @@ namespace backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Reason")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -138,7 +130,7 @@ namespace backend.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("TransactionId");
 
                     b.HasIndex("CategoryId");
 

@@ -10,7 +10,7 @@ namespace backend.Models
         public int TransactionId { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(500)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
@@ -20,8 +20,7 @@ namespace backend.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [StringLength(500)]
         public string? Source { get; set; } // e.g., "Big Mart", "Salary"
 
         [Required]

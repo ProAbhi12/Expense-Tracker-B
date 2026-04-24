@@ -11,6 +11,7 @@ namespace backend.Data
 
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Budget> Budgets { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +19,12 @@ namespace backend.Data
                 .HasOne(t => t.Category)
                 .WithMany(c => c.Transactions)
                 .HasForeignKey(t => t.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Budget>()
+                .HasOne(b => b.Category)
+                .WithMany(c => c.Budgets)
+                .HasForeignKey(b => b.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Category>()
