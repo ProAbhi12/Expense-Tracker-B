@@ -4,12 +4,10 @@ namespace backend.DTOs
 {
     public class DateRangeParameters
     {
-        [Required]
-        public DateTime FromDate { get; set; } = DateTime.UtcNow.AddMonths(-1);
+        public DateTime? FromDate { get; set; }
 
-        [Required]
-        public DateTime ToDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ToDate { get; set; }
 
-        public string? SearchTerm { get; set; } 
+        public string? SearchTerm { get; set; }
     }
 }
