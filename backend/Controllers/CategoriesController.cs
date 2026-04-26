@@ -1,36 +1,93 @@
 using backend.Data;
+using backend.DTOs;
 using backend.Models;
+using backend.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class CategoriesController : ControllerBase
+    [ApiController]
+    public class CategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public CategoriesController(ApplicationDbContext context)
+        public CategoryController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // Get All
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<IActionResult> GetAll()
         {
-            return await _context.Categories.ToListAsync();
+            var data = await _context.Categories.ToListAsync();
+            return Ok(data);
         }
 
-        // POST: api/Categories
-        [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        // Get By Id
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
+            var data = await _context.Categories.FindAsync(id);
+            if (data == null)
+                return NotFound();
+            return Ok(data);
+        }
+
+        //Create 
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CategoryDto dto)
+        {
+            var category = new Category
+            {
+                Name = dto.Name,
+                Type = (TransactionTypeEnum)dto.Type,
+                Icon = dto.Icon,
+                Color = dto.Color,
+                Budget = dto.Budget,
+                IsDefault = dto.IsDefault
+            };
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, category);
+            return Ok(category);
+        }
+
+        //Update
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Category model)
+        {
+            var data = await _context.Categories.FindAsync(id);
+
+            if (data == null)
+                return NotFound();
+
+            data.Name = model.Name;
+            data.Type = model.Type;
+            data.Icon = model.Icon;
+            data.Color = model.Color;
+            data.Budget = model.Budget;
+            data.IsDefault = model.IsDefault;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(data);
+        }
+        //Delete 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var data = await _context.Categories.FindAsync(id);
+
+            if (data == null)
+                return NotFound();
+
+            _context.Categories.Remove(data);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
