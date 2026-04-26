@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-
+// Add DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

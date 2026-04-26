@@ -16,13 +16,11 @@ namespace backend.Models
         [Required]
         public TransactionTypeEnum Type { get; set; }
 
-        [StringLength(50)] 
+    
         public string? Icon { get; set; }
 
-        [StringLength(7)]
         public string? Color { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
         public decimal Budget { get; set; } // Default/Master Budget limit
 
         public bool IsDefault { get; set; } = false;
