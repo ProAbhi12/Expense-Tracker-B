@@ -21,7 +21,7 @@ namespace backend.Controllers
         /// Get pie chart data showing expenses by category within a date range
         /// </summary>
         [HttpGet("pie-chart")]
-        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] string? searchTerm = null)
+        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters)
         {
             if (fromDate > toDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
@@ -59,7 +59,7 @@ namespace backend.Controllers
         /// Get line graph data showing daily expenses over time
         /// </summary>
         [HttpGet("line-graph")]
-        public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] string? searchTerm = null)
+        public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters)
         {
             if (fromDate > toDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
@@ -98,7 +98,7 @@ namespace backend.Controllers
         /// Get income vs expense comparison over time
         /// </summary>
         [HttpGet("income-expense-comparison")]
-        public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] string? searchTerm = null)
+        public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromQuery] DateRangeParameters parameters)
         {
             if (fromDate > toDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
