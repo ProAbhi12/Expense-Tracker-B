@@ -1,22 +1,27 @@
-import React, { createContext,useCallback, useContext, 
-    useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
-const uuidv4 = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
+// ========== CONTEXT SETUP ==========
 const AppContext = createContext(null);
 
-const toNumber = value => {
-  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
-  if (typeof value !== 'string') return 0;
-  const sanitized = value.replace(/,/g, '').trim();
-  const parsed = Number(sanitized);
-  return Number.isFinite(parsed) ? parsed : 0;
+// ========== HELPER FUNCTIONS ==========
+/**
+ * Safely converts any value to a number
+ * Handles: numbers, strings with commas (1,500), invalid values
+ */
+const toNumber = (value) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (typeof value !== 'string') {
+    return 0;
+  }
+
+  const cleaned = value.replace(/,/g, '').trim();
+  const num = Number(cleaned);
+
+  return Number.isFinite(num) ? num : 0;
 };
 
 const initialBudgets = [
@@ -34,6 +39,7 @@ const initialTransactions = [
   { id: uuidv4(), category: 'Shopping', amount: "1400" },
 ];
 
+// ========== APP PROVIDER COMPONENT ==========
 export const AppProvider = ({ children }) => {
   const [budgets, setBudgets] = useState(initialBudgets);
   const [transactions] = useState(initialTransactions);
@@ -67,7 +73,7 @@ export const AppProvider = ({ children }) => {
       .reduce((total, transaction) => total + toNumber(transaction.amount), 0);
   }, [transactions]);
 
-  const value = useMemo(() => ({
+  const contextValue = useMemo(() => ({
     budgets,
     transactions,
     addBudget,
@@ -76,16 +82,17 @@ export const AppProvider = ({ children }) => {
   }), [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]);
 
   return (
-    <AppContext.Provider value={value}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
 };
 
+// ========== CUSTOM HOOK ==========
 export const useApp = () => {
-  const ctx = useContext(AppContext);
-
-  if (!ctx) throw new Error('useApp must be inside AppProvider');
-
-  return ctx;
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('❌ useApp must be used inside <AppProvider>');
+  }
+  return context;
 };
