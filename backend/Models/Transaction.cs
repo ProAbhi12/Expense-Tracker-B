@@ -31,7 +31,7 @@ namespace backend.Models
 
         [Required]
         public int CategoryId { get; set; }
-        
+
         [ForeignKey("CategoryId")]
         public Category Category { get; set; } = null!;
     }
