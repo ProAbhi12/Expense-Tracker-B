@@ -23,14 +23,14 @@ namespace backend.Controllers
         [HttpGet("pie-chart")]
         public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters)
         {
-            if (fromDate > toDate)
+            if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
 
             // Filter expenses by date range and group by category
             var pieChartData = await _context.Transactions
                 .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                            t.Date.Date >= parameters.FromDate.Date &&
+                            t.Date.Date <= parameters.ToDate.Date)
                 .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
                 .Select(g => new PieChartDataDTO
                 {
@@ -61,14 +61,14 @@ namespace backend.Controllers
         [HttpGet("line-graph")]
         public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters)
         {
-            if (fromDate > toDate)
+            if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
 
             // Group transactions by date and sum expenses for each day
             var lineGraphData = await _context.Transactions
                 .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                            t.Date.Date >= parameters.FromDate.Date &&
+                            t.Date.Date <= parameters.ToDate.Date)
                 .GroupBy(t => t.Date.Date)
                 .Select(g => new LineGraphDataDTO
                 {
@@ -79,7 +79,7 @@ namespace backend.Controllers
                 .ToListAsync();
 
             // Fill in missing dates with zero values for continuous line graph
-            var allDates = GenerateDateRange(fromDate, toDate);
+            var allDates = GenerateDateRange(parameters.FromDate, parameters.ToDate);
             var completeLineGraphData = allDates
                 .GroupJoin(lineGraphData,
                     date => date,
@@ -100,12 +100,12 @@ namespace backend.Controllers
         [HttpGet("income-expense-comparison")]
         public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromQuery] DateRangeParameters parameters)
         {
-            if (fromDate > toDate)
+            if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
 
             var comparisonData = await _context.Transactions
-                .Where(t => t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                .Where(t => t.Date.Date >= parameters.FromDate.Date &&
+                            t.Date.Date <= parameters.ToDate.Date)
                 .GroupBy(t => t.Date.Date)
                 .Select(g => new IncomeExpenseComparisonDTO
                 {
@@ -117,7 +117,7 @@ namespace backend.Controllers
                 .ToListAsync();
 
             // Fill in missing dates for continuous comparison
-            var allDates = GenerateDateRange(fromDate, toDate);
+            var allDates = GenerateDateRange(parameters.FromDate, parameters.ToDate);
             var completeComparisonData = allDates
                 .GroupJoin(comparisonData,
                     date => date,
