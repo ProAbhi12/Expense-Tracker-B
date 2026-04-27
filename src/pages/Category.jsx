@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Trash2,
@@ -108,16 +108,40 @@ const AddBudgetModal = ({ onClose }) => {
     category: CATEGORY_OPTIONS[0].category,
     budget: "",
     color: CATEGORY_OPTIONS[0].color,
-    type: "EXPENSE", // Default to Expense
+    type: "EXPENSE",
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const amount = parseFloat(form.budget.toString().replace(/,/g, ""));
     if (!form.category.trim()) return setError("Please enter a name");
     if (isNaN(amount) || amount <= 0)
       return setError("Please enter a valid amount");
-    addBudget({ ...form, budget: amount });
-    onClose();
+    
+    try {
+      // POST request to add category
+      const response = await fetch("https://localhost:7197/api/Category", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.category,
+          type: form.type,
+          color: form.color,
+          budget: amount,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to add category: ${response.status}`);
+      }
+
+      addBudget({ ...form, budget: amount });
+      onClose();
+    } catch (error) {
+      console.error("Error adding category:", error);
+      setError("Failed to add category");
+    }
   };
 
   return (
@@ -140,7 +164,6 @@ const AddBudgetModal = ({ onClose }) => {
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Type Switcher (Matching Backend) */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-2 px-1">
               Flow Type
@@ -165,7 +188,6 @@ const AddBudgetModal = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Dropdown */}
           <div className="relative">
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-1 px-1">
               Select Category
@@ -338,13 +360,34 @@ const BudgetCard = ({ budget }) => {
   const { getSpentByCategory, deleteBudget } = useApp();
   const { dark } = useTheme();
 
-  // Stability Fix: Use Icon directly from map
   const smart = getSmartIconForCustom(budget.category);
   const isPreset = CATEGORY_OPTIONS.some((c) => c.category === budget.category);
 
   const spent = getSpentByCategory(budget.category);
   const remaining = budget.budget - spent;
   const percentage = Math.min((spent / budget.budget) * 100, 100);
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`https://localhost:7197/api/Category/${budget.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
+      }
+
+      console.log("Delete successful:", budget.id);
+      // Update local state after successful API call
+      deleteBudget(budget.id);
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Failed to delete category");
+    }
+  };
 
   return (
     <div
@@ -375,12 +418,14 @@ const BudgetCard = ({ budget }) => {
             </p>
           </div>
         </div>
+
         <button
-          onClick={() => deleteBudget(budget.id)}
+          onClick={handleDelete}
           className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
           <Trash2 size={16} />
         </button>
+        
       </div>
       <div
         className={`h-2.5 w-full rounded-full overflow-hidden ${dark ? "bg-slate-800" : "bg-slate-100"}`}
@@ -408,10 +453,30 @@ const BudgetCard = ({ budget }) => {
 
 // ========== MAIN PAGE ==========
 const Budgets = () => {
-  const { budgets } = useApp();
+  const { budgets, setBudgetsFromAPI } = useApp();
   const { dark } = useTheme();
   const [showModal, setShowModal] = useState(false);
   const [trendRange, setTrendRange] = useState("monthly");
+
+  // GET - Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("https://localhost:7197/api/Category");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Fetched categories:", data);
+        // Update the context with API data
+        setBudgetsFromAPI(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    
+    fetchCategories();
+  }, [setBudgetsFromAPI]);
 
   const axisStroke = dark ? "#94a3b8" : "#64748b";
   const gridStroke = dark ? "#334155" : "#e2e8f0";
@@ -498,55 +563,38 @@ const Budgets = () => {
             <h3
               className={`font-bold underline decoration-green-500 decoration-4 underline-offset-8 ${dark ? "text-white" : ""}`}
             >
-              Trend Analysis
+              Trends
             </h3>
-            <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
-              {["daily", "weekly", "monthly", "yearly"].map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setTrendRange(r)}
-                  className={`px-2 py-1 text-[9px] font-black rounded uppercase transition-all ${trendRange === r ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
+            <select
+              value={trendRange}
+              onChange={(e) => setTrendRange(e.target.value)}
+              className={`px-3 py-1 text-xs font-semibold border rounded-lg ${dark ? "bg-slate-800 border-slate-700 text-white" : "bg-white border-slate-300"}`}
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke={gridStroke}
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="label" stroke={axisStroke} tick={{ fontSize: 12 }} />
+                <YAxis stroke={axisStroke} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  }}
                 />
-                <XAxis
-                  dataKey="label"
-                  stroke={axisStroke}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 10, fontWeight: "bold" }}
-                />
-                <YAxis
-                  stroke={axisStroke}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 10, fontWeight: "bold" }}
-                />
-                <Tooltip />
                 <Line
                   type="monotone"
                   dataKey="value"
-                  name="Budget"
                   stroke="#3b82f6"
-                  strokeWidth={4}
-                  dot={{
-                    r: 4,
-                    fill: "#3b82f6",
-                    strokeWidth: 2,
-                    stroke: "#fff",
-                  }}
-                  activeDot={{ r: 7 }}
+                  dot={{ fill: "#3b82f6", r: 4 }}
+                  activeDot={{ r: 6 }}
                 />
               </LineChart>
             </ResponsiveContainer>
