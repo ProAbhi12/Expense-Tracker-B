@@ -118,7 +118,10 @@ const AddBudgetModal = ({ onClose }) => {
       return setError("Please enter a valid amount");
     
     try {
-      // POST request to add category
+      // Convert type to number: EXPENSE = 0, INCOME = 1
+      const typeValue = form.type === "INCOME" ? 1 : 0;
+
+      // POST request to add category to database
       const response = await fetch("https://localhost:7197/api/Category", {
         method: "POST",
         headers: {
@@ -126,21 +129,35 @@ const AddBudgetModal = ({ onClose }) => {
         },
         body: JSON.stringify({
           name: form.category,
-          type: form.type,
+          type: typeValue,  // Send as number
+          icon: "📝",  // Default icon
           color: form.color,
           budget: amount,
+          isDefault: false,  // User-created categories are not default
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to add category: ${response.status}`);
+        throw new Error(`Failed to add category: ${response.status} ${response.statusText}`);
       }
 
-      addBudget({ ...form, budget: amount });
+      // Get the response data (includes ID from database)
+      const responseData = await response.json();
+      console.log("✅ Category saved to SSMS database:", responseData);
+
+      // Update local context with the new category from database
+      addBudget({
+        ...form,
+        budget: amount,
+        id: responseData.id, // Use ID from database response
+      });
+
+      // Reset form
+      setError("");
       onClose();
     } catch (error) {
-      console.error("Error adding category:", error);
-      setError("Failed to add category");
+      console.error("❌ Error adding category:", error);
+      setError("Failed to save category to database");
     }
   };
 
@@ -164,6 +181,27 @@ const AddBudgetModal = ({ onClose }) => {
         </div>
 
         <div className="p-6 space-y-5">
+          {/* ICON PREVIEW */}
+          <div className="flex justify-center">
+            <div
+              className="p-4 rounded-xl shadow-sm"
+              style={{
+                backgroundColor: `${form.color}15`,
+                color: form.color,
+              }}
+            >
+              {selectedPreset === "custom" ? (
+                React.createElement(getSmartIconForCustom(form.category).icon, {
+                  size: 40,
+                })
+              ) : (
+                React.createElement(getIconComponent(selectedPreset), {
+                  size: 40,
+                })
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-2 px-1">
               Flow Type
@@ -380,12 +418,45 @@ const BudgetCard = ({ budget }) => {
         throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
       }
 
-      console.log("Delete successful:", budget.id);
+      console.log("✅ DELETE successful:", budget.id);
       // Update local state after successful API call
       deleteBudget(budget.id);
     } catch (error) {
-      console.error("Error deleting category:", error);
+      console.error("❌ Error deleting category:", error);
       alert("Failed to delete category");
+    }
+  };
+
+  const handleUpdate = async (updatedBudget) => {
+    try {
+      const typeValue = updatedBudget.type === "INCOME" ? 1 : 0;
+
+      const response = await fetch(`https://localhost:7197/api/Category/${budget.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: budget.id,
+          name: updatedBudget.category,
+          type: typeValue,
+          icon: "📝",
+          color: updatedBudget.color,
+          budget: updatedBudget.budget,
+          isDefault: false,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Update failed: ${response.status} ${response.statusText}`);
+      }
+
+      console.log("✅ UPDATE successful:", budget.id);
+      // You can add logic here to refresh the data
+      alert("Category updated successfully");
+    } catch (error) {
+      console.error("❌ Error updating category:", error);
+      alert("Failed to update category");
     }
   };
 
