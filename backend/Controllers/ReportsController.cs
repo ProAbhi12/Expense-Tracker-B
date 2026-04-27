@@ -18,26 +18,42 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Get pie chart data showing expenses by category within a date range
+        /// Get pie chart data showing transactions by category within a date range
+        /// Optional transactionType parameter: "INCOME", "EXPENSE", or null for both
         /// </summary>
         [HttpGet("pie-chart")]
-        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters)
+        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters, [FromQuery] string? transactionType = null)
         {
             if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
 
-            // Filter expenses by date range and group by category
-            var pieChartData = await _context.Transactions
-                .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= parameters.FromDate.Date &&
-                            t.Date.Date <= parameters.ToDate.Date)
+            // Build query with optional transaction type filter
+            var query = _context.Transactions
+                .Where(t => t.Date.Date >= parameters.FromDate.Date &&
+                            t.Date.Date <= parameters.ToDate.Date);
+
+            // Filter by transaction type if specified
+            if (!string.IsNullOrEmpty(transactionType))
+            {
+                if (transactionType.Equals("INCOME", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(t => t.Type == TransactionTypeEnum.INCOME);
+                }
+                else if (transactionType.Equals("EXPENSE", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(t => t.Type == TransactionTypeEnum.EXPENSE);
+                }
+            }
+
+            // Group by category
+            var pieChartData = await query
                 .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
                 .Select(g => new PieChartDataDTO
                 {
                     CategoryName = g.Key.Name,
                     Amount = g.Sum(t => t.Amount),
                     Color = g.Key.Color ?? "#888888",
-                    Percentage = 0 // Will be calculated on client side
+                    Percentage = 0 // Will be calculated below
                 })
                 .OrderByDescending(x => x.Amount)
                 .ToListAsync();
@@ -56,38 +72,56 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Get line graph data showing daily expenses over time
+        /// Get line graph data showing daily transactions over time
+        /// Optional transactionType parameter: "INCOME", "EXPENSE", or null for both
         /// </summary>
         [HttpGet("line-graph")]
-        public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters)
+        public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters, [FromQuery] string? transactionType = null)
         {
             if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
 
-            // Group transactions by date and sum expenses for each day
-            var lineGraphData = await _context.Transactions
-                .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= parameters.FromDate.Date &&
+            var comparisonData = await _context.Transactions
+                .Where(t => t.Date.Date >= parameters.FromDate.Date &&
                             t.Date.Date <= parameters.ToDate.Date)
                 .GroupBy(t => t.Date.Date)
-                .Select(g => new LineGraphDataDTO
+                .Select(g => new IncomeExpenseComparisonDTO
                 {
                     Date = g.Key,
-                    Amount = g.Sum(t => t.Amount)
+                    Income = g.Where(t => t.Type == TransactionTypeEnum.INCOME).Sum(t => t.Amount),
+                    Expense = g.Where(t => t.Type == TransactionTypeEnum.EXPENSE).Sum(t => t.Amount)
                 })
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
-            // Fill in missing dates with zero values for continuous line graph
+            // If specific transaction type is requested, filter the results
+            if (!string.IsNullOrEmpty(transactionType))
+            {
+                if (transactionType.Equals("INCOME", StringComparison.OrdinalIgnoreCase))
+                {
+                    comparisonData = comparisonData
+                        .Where(x => x.Income > 0)
+                        .ToList(); 
+                }
+                else if (transactionType.Equals("EXPENSE", StringComparison.OrdinalIgnoreCase))
+                {
+                    comparisonData = comparisonData
+                        .Where(x => x.Expense > 0)
+                        .ToList();
+                }
+            }
+
+            // Fill in missing dates for continuous comparison
             var allDates = GenerateDateRange(parameters.FromDate, parameters.ToDate);
             var completeLineGraphData = allDates
-                .GroupJoin(lineGraphData,
+                .GroupJoin(comparisonData,
                     date => date,
                     data => data.Date,
-                    (date, dataGroup) => new LineGraphDataDTO
+                    (date, dataGroup) => new IncomeExpenseComparisonDTO
                     {
                         Date = date,
-                        Amount = dataGroup.FirstOrDefault()?.Amount ?? 0
+                        Income = dataGroup.FirstOrDefault()?.Income ?? 0,
+                        Expense = dataGroup.FirstOrDefault()?.Expense ?? 0
                     })
                 .ToList();
 
