@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using backend.Data;
 using backend.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -17,35 +17,28 @@ namespace backend.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Get pie chart data showing expenses by category within a date range
-        /// </summary>
         [HttpGet("pie-chart")]
         public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters)
         {
-            var fromDate = parameters.FromDate ?? DateTime.MinValue;
-            var toDate = parameters.ToDate ?? DateTime.MaxValue;
+            // SAFETY: Set default dates if empty
+            DateTime start = parameters.FromDate ?? DateTime.UtcNow.AddMonths(-1);
+            DateTime end = parameters.ToDate ?? DateTime.UtcNow;
 
-            if (fromDate > toDate)
-                return BadRequest("FromDate cannot be greater than ToDate");
-
-            // Filter expenses by date range and group by category
             var pieChartData = await _context.Transactions
                 .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                            t.Date.Date >= start.Date &&
+                            t.Date.Date <= end.Date)
                 .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
                 .Select(g => new PieChartDataDTO
                 {
                     CategoryName = g.Key.Name,
                     Amount = g.Sum(t => t.Amount),
                     Color = g.Key.Color ?? "#888888",
-                    Percentage = 0 // Will be calculated on client side
+                    Percentage = 0
                 })
                 .OrderByDescending(x => x.Amount)
                 .ToListAsync();
 
-            // Calculate percentages
             var total = pieChartData.Sum(x => x.Amount);
             if (total > 0)
             {
@@ -58,23 +51,17 @@ namespace backend.Controllers
             return Ok(pieChartData);
         }
 
-        /// <summary>
-        /// Get line graph data showing daily expenses over time
-        /// </summary>
         [HttpGet("line-graph")]
         public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters)
         {
-            var fromDate = parameters.FromDate ?? DateTime.MinValue;
-            var toDate = parameters.ToDate ?? DateTime.MaxValue;
+            // SAFETY: Set default dates if empty
+            DateTime start = parameters.FromDate ?? DateTime.UtcNow.AddDays(-7); // Default to last 7 days
+            DateTime end = parameters.ToDate ?? DateTime.UtcNow;
 
-            if (fromDate > toDate)
-                return BadRequest("FromDate cannot be greater than ToDate");
-
-            // Group transactions by date and sum expenses for each day
             var lineGraphData = await _context.Transactions
                 .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
-                            t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                            t.Date.Date >= start.Date &&
+                            t.Date.Date <= end.Date)
                 .GroupBy(t => t.Date.Date)
                 .Select(g => new LineGraphDataDTO
                 {
@@ -84,8 +71,7 @@ namespace backend.Controllers
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
-            // Fill in missing dates with zero values for continuous line graph
-            var allDates = GenerateDateRange(fromDate, toDate);
+            var allDates = GenerateDateRange(start, end);
             var completeLineGraphData = allDates
                 .GroupJoin(lineGraphData,
                     date => date,
@@ -100,21 +86,16 @@ namespace backend.Controllers
             return Ok(completeLineGraphData);
         }
 
-        /// <summary>
-        /// Get income vs expense comparison over time
-        /// </summary>
         [HttpGet("income-expense-comparison")]
         public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromQuery] DateRangeParameters parameters)
         {
-            var fromDate = parameters.FromDate ?? DateTime.MinValue;
-            var toDate = parameters.ToDate ?? DateTime.MaxValue;
-
-            if (fromDate > toDate)
-                return BadRequest("FromDate cannot be greater than ToDate");
+            // SAFETY: Set default dates if empty
+            DateTime start = parameters.FromDate ?? DateTime.UtcNow.AddDays(-7);
+            DateTime end = parameters.ToDate ?? DateTime.UtcNow;
 
             var comparisonData = await _context.Transactions
-                .Where(t => t.Date.Date >= fromDate.Date &&
-                            t.Date.Date <= toDate.Date)
+                .Where(t => t.Date.Date >= start.Date &&
+                            t.Date.Date <= end.Date)
                 .GroupBy(t => t.Date.Date)
                 .Select(g => new IncomeExpenseComparisonDTO
                 {
@@ -125,8 +106,7 @@ namespace backend.Controllers
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
-            // Fill in missing dates for continuous comparison
-            var allDates = GenerateDateRange(fromDate, toDate);
+            var allDates = GenerateDateRange(start, end);
             var completeComparisonData = allDates
                 .GroupJoin(comparisonData,
                     date => date,
@@ -142,18 +122,18 @@ namespace backend.Controllers
             return Ok(completeComparisonData);
         }
 
-        /// <summary>
-        /// Helper method to generate a list of dates between two dates
-        /// </summary>
         private List<DateTime> GenerateDateRange(DateTime fromDate, DateTime toDate)
         {
             var dates = new List<DateTime>();
             var current = fromDate.Date;
             
-            while (current <= toDate.Date)
+            // Added extra safety to prevent infinite loop
+            int safetyCounter = 0;
+            while (current <= toDate.Date && safetyCounter < 1000)
             {
                 dates.Add(current);
                 current = current.AddDays(1);
+                safetyCounter++;
             }
 
             return dates;
