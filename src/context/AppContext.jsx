@@ -12,7 +12,7 @@ const AppContext = createContext(null);
 const toNumber = (value) => {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : 0;
-  }
+ }
 
   if (typeof value !== 'string') {
     return 0;
@@ -25,11 +25,11 @@ const toNumber = (value) => {
 };
 
 const initialBudgets = [
-  { id: uuidv4(), category: 'Food', budget: 3000, color: '#ef4444' },
-  { id: uuidv4(), category: 'Transportation', budget: 1500, color: '#3b82f6' },
-  { id: uuidv4(), category: 'Housing', budget: 10000, color: '#f59e0b' },
-  { id: uuidv4(), category: 'Entertainment', budget: 100, color: '#10b981' },
-  { id: uuidv4(), category: 'Shopping', budget: 2000, color: '#8b5cf6' },
+  { id: uuidv4(), category: 'Food', budget: 3000, color: '#ef4444', iconName: 'FaUtensils' },
+  { id: uuidv4(), category: 'Transportation', budget: 1500, color: '#3b82f6', iconName: 'FaCar' },
+  { id: uuidv4(), category: 'Housing', budget: 10000, color: '#f59e0b', iconName: 'FaHouse' },
+  { id: uuidv4(), category: 'Entertainment', budget: 100, color: '#10b981', iconName: 'FaFilm' },
+  { id: uuidv4(), category: 'Shopping', budget: 2000, color: '#8b5cf6', iconName: 'FaShoppingBag' },
 ];
 
 const initialTransactions = [
@@ -66,6 +66,18 @@ export const AppProvider = ({ children }) => {
     setBudgets(currentBudgets => currentBudgets.filter(budget => budget.id !== budgetId));
   }, []);
 
+  const setBudgetsFromAPI = useCallback(apiData => {
+    // Transform API data to match our budget format
+    const transformedBudgets = apiData.map(item => ({
+      id: item.id || uuidv4(),
+      category: item.name || item.category,
+      budget: toNumber(item.budget),
+      color: item.color || '#64748b',
+      type: item.type || 'EXPENSE',
+    }));
+    setBudgets(transformedBudgets);
+  }, []);
+
   const getSpentByCategory = useCallback(category => {
     const normalizedCategory = category.trim().toLowerCase();
     return transactions
@@ -78,8 +90,9 @@ export const AppProvider = ({ children }) => {
     transactions,
     addBudget,
     deleteBudget,
+    setBudgetsFromAPI,
     getSpentByCategory,
-  }), [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]);
+  }), [budgets, transactions, addBudget, deleteBudget, setBudgetsFromAPI, getSpentByCategory]);
 
   return (
     <AppContext.Provider value={contextValue}>

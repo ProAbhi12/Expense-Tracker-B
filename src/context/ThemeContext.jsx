@@ -2,13 +2,13 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const ThemeContext = createContext();
 
-export function ThemeProvider({ children }) {
-  const [dark, setDark] = useState(false);
+const getInitialTheme = () => {
+  const saved = localStorage.getItem("theme");
+  return saved === "dark";
+};
 
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") setDark(true);
-  }, []);
+export function ThemeProvider({ children }) {
+  const [dark, setDark] = useState(getInitialTheme);
 
   useEffect(() => {
     if (dark) {
@@ -30,4 +30,5 @@ export function ThemeProvider({ children }) {
 }
 
 // custom hook (clean usage)
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => useContext(ThemeContext);
