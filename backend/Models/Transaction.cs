@@ -10,7 +10,7 @@ namespace backend.Models
         public int TransactionId { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(500)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
@@ -22,18 +22,17 @@ namespace backend.Models
 
         [Required]
         [StringLength(100)]
-        public string? Source { get; set; } // e.g., "Big Mart", "Salary"
+        public string? Source { get; set; }
 
         [Required]
-        public TransactionMethod Method { get; set; } // e.g., Cash, eSewa
+        public TransactionMethod Method { get; set; }
 
         [Required]
         public DateTime Date { get; set; }
 
-        [Required]
-        public int CategoryId { get; set; }
-
-        [ForeignKey("CategoryId")]
-        public Category Category { get; set; } = null!;
+        public int? Id { get; set; }
+        
+        [ForeignKey("Id")]
+        public Category? Category { get; set; }
     }
 }

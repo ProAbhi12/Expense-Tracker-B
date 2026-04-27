@@ -2,9 +2,9 @@
 {
     public enum TransactionMethod
     {
-        Cash,
-        eSewa,
-        Khalti,
-        Mobile_Banking,
+        CASH = 0,
+        ESEWA = 1,
+        KHALTI = 2,
+        MOBILE_BANKING = 3
     }
 }

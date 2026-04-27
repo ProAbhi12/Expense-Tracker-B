@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260426030149_initialcreate")]
-    partial class initialcreate
+    [Migration("20260427084428_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -108,22 +108,62 @@ namespace backend.Migrations
                         new
                         {
                             Id = 2,
-                            Budget = 1500m,
-                            Color = "#06b6d4",
+                            Budget = 3000m,
+                            Color = "#ef4444",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
-                            Name = "Utilities",
+                            Name = "Rent & Bills",
                             Type = 1
                         },
                         new
                         {
                             Id = 3,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Transportation",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Entertainment",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 5,
                             Budget = 50000m,
                             Color = "#22c55e",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
                             Name = "Salary",
                             Type = 0
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Shopping",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Others",
+                            Type = 1
                         });
                 });
 
@@ -138,11 +178,11 @@ namespace backend.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
 
                     b.Property<int>("Method")
                         .HasColumnType("int");
@@ -153,15 +193,16 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Source")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Transactions");
                 });
@@ -181,7 +222,7 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.Category", "Category")
                         .WithMany("Transactions")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

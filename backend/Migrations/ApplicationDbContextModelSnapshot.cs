@@ -22,83 +22,7 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("backend.Models.Category", b =>
-                {
-                    b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
-
-                    b.Property<decimal>("BudgetLimit")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoryId");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryId = 1,
-                            BudgetLimit = 0m,
-                            CategoryName = "Food & Drinks",
-                            Color = "#ef4444",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
-                            Type = 1
-                        },
-                        new
-                        {
-                            CategoryId = 2,
-                            BudgetLimit = 0m,
-                            CategoryName = "Utilities",
-                            Color = "#06b6d4",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
-                            Type = 1
-                        },
-                        new
-                        {
-                            CategoryId = 3,
-                            BudgetLimit = 0m,
-                            CategoryName = "Salary",
-                            Color = "#22c55e",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDefault = false,
-                            Type = 0
-                        });
-                });
-
-            modelBuilder.Entity("backend.Models.Transaction", b =>
+            modelBuilder.Entity("backend.Models.Budget", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -112,22 +36,50 @@ namespace backend.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Method")
+                    b.Property<int>("Month")
                         .HasColumnType("int");
 
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Budgets");
+                });
+
+            modelBuilder.Entity("backend.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Budget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Source")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -137,16 +89,137 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Budget = 3000m,
+                            Color = "#ef4444",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Food & Drinks",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Budget = 3000m,
+                            Color = "#ef4444",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Rent & Bills",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Transportation",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Entertainment",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Budget = 50000m,
+                            Color = "#22c55e",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Salary",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Shopping",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Budget = 1500m,
+                            Color = "#06b6d4",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Others",
+                            Type = 1
+                        });
+                });
+
+            modelBuilder.Entity("backend.Models.Transaction", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("TransactionId");
+
+                    b.HasIndex("Id");
 
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("backend.Models.Budget", b =>
+                {
+                    b.HasOne("backend.Models.Category", "Category")
+                        .WithMany("Budgets")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("backend.Models.Transaction", b =>
                 {
                     b.HasOne("backend.Models.Category", "Category")
                         .WithMany("Transactions")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -155,6 +228,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Category", b =>
                 {
+                    b.Navigation("Budgets");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618

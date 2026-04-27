@@ -20,8 +20,8 @@ namespace backend.Controllers
         /// <summary>
         /// Get pie chart data showing expenses by category within a date range
         /// </summary>
-        [HttpPost("pie-chart")]
-        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromBody] DateRangeParameters parameters)
+        [HttpGet("pie-chart")]
+        public async Task<ActionResult<IEnumerable<PieChartDataDTO>>> GetPieChartData([FromQuery] DateRangeParameters parameters)
         {
             if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
@@ -31,7 +31,7 @@ namespace backend.Controllers
                 .Where(t => t.Type == TransactionTypeEnum.EXPENSE &&
                             t.Date.Date >= parameters.FromDate.Date &&
                             t.Date.Date <= parameters.ToDate.Date)
-                .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
+                .GroupBy(t => new { t.Id, t.Category.Name, t.Category.Color })
                 .Select(g => new PieChartDataDTO
                 {
                     CategoryName = g.Key.Name,
@@ -58,8 +58,8 @@ namespace backend.Controllers
         /// <summary>
         /// Get line graph data showing daily expenses over time
         /// </summary>
-        [HttpPost("line-graph")]
-        public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromBody] DateRangeParameters parameters)
+        [HttpGet("line-graph")]
+        public async Task<ActionResult<IEnumerable<LineGraphDataDTO>>> GetLineGraphData([FromQuery] DateRangeParameters parameters)
         {
             if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");
@@ -97,8 +97,8 @@ namespace backend.Controllers
         /// <summary>
         /// Get income vs expense comparison over time
         /// </summary>
-        [HttpPost("income-expense-comparison")]
-        public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromBody] DateRangeParameters parameters)
+        [HttpGet("income-expense-comparison")]
+        public async Task<ActionResult<IEnumerable<IncomeExpenseComparisonDTO>>> GetIncomeExpenseComparison([FromQuery] DateRangeParameters parameters)
         {
             if (parameters.FromDate > parameters.ToDate)
                 return BadRequest("FromDate cannot be greater than ToDate");

@@ -8,11 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-<<<<<<<< HEAD:backend/Migrations/20260423043704_InitialCreateV2.cs
-    public partial class InitialCreateV2 : Migration
-========
-    public partial class initialcreate : Migration
->>>>>>>> cbcada2 (ExpenseController):backend/Migrations/20260426030149_initialcreate.cs
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,20 +17,19 @@ namespace backend.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Icon = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Color = table.Column<string>(type: "nvarchar(7)", maxLength: 7, nullable: true),
-                    BudgetLimit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Budget = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsDefault = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,40 +59,39 @@ namespace backend.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    TransactionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-<<<<<<<< HEAD:backend/Migrations/20260423043704_InitialCreateV2.cs
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-========
                     Name = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
->>>>>>>> cbcada2 (ExpenseController):backend/Migrations/20260426030149_initialcreate.cs
                     Type = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Source = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Method = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.TransactionId);
                     table.ForeignKey(
-                        name: "FK_Transactions_Categories_CategoryId",
-                        column: x => x.CategoryId,
+                        name: "FK_Transactions_Categories_Id",
+                        column: x => x.Id,
                         principalTable: "Categories",
-                        principalColumn: "CategoryId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "CategoryId", "BudgetLimit", "CategoryName", "Color", "CreatedAt", "Description", "Icon", "IsDefault", "Type" },
+                columns: new[] { "Id", "Budget", "Color", "CreatedAt", "Icon", "IsDefault", "Name", "Type" },
                 values: new object[,]
                 {
-                    { 1, 0m, "Food & Drinks", "#ef4444", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, false, 1 },
-                    { 2, 0m, "Utilities", "#06b6d4", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, false, 1 },
-                    { 3, 0m, "Salary", "#22c55e", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, false, 0 }
+                    { 1, 3000m, "#ef4444", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Food & Drinks", 1 },
+                    { 2, 3000m, "#ef4444", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Rent & Bills", 1 },
+                    { 3, 1500m, "#06b6d4", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Transportation", 1 },
+                    { 4, 1500m, "#06b6d4", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Entertainment", 1 },
+                    { 5, 50000m, "#22c55e", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Salary", 0 },
+                    { 6, 1500m, "#06b6d4", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Shopping", 1 },
+                    { 7, 1500m, "#06b6d4", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Others", 1 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -106,9 +100,9 @@ namespace backend.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_CategoryId",
+                name: "IX_Transactions_Id",
                 table: "Transactions",
-                column: "CategoryId");
+                column: "Id");
         }
 
         /// <inheritdoc />
