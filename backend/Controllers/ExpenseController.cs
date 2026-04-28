@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
 using backend.Models.Enums;
+using backend.DTOs;
 
 namespace backend.Controllers
 {
@@ -27,7 +28,7 @@ namespace backend.Controllers
                 return BadRequest("Amount must be greater than 0");
 
             var categoryExists = await _context.Categories
-                .AnyAsync(c => c.Id == dto.Id);
+                .AnyAsync(c => c.Id == dto.CategoryId);
 
             if (!categoryExists)
                 return BadRequest("Invalid category");
@@ -38,7 +39,7 @@ namespace backend.Controllers
                 Amount = dto.Amount,
                 Method = (TransactionMethod)dto.Method,
                 Date = dto.Date,
-                TransactionId = dto.Id,
+                CategoryId = dto.CategoryId,  
                 Source = dto.Source,
                 Type = TransactionTypeEnum.EXPENSE
             };

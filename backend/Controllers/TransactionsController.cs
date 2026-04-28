@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.DTOs;
+using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +38,30 @@ namespace backend.Controllers
                 .ToListAsync();
 
             return Ok(transactions);
+        }
+
+        // --- ADDED: POST method to save new transactions ---
+        [HttpPost("add")]
+        public async Task<IActionResult> AddTransaction([FromBody] AddTransactionDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Create a new database Model from the DTO
+            var transaction = new Transaction
+            {
+                Name = dto.Name,
+                Amount = dto.Amount,
+                Type = dto.Type,
+                CategoryId = dto.CategoryId,
+                Source = dto.Source,
+                Method = dto.Method,
+                Date = dto.Date
+            };
+
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Transaction saved successfully", id = transaction.TransactionId });
         }
     }
 }
