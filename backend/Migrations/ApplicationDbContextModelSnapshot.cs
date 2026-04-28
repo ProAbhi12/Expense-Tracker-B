@@ -95,17 +95,37 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            Budget = 3000m,
-                            Color = "#ef4444",
+                            Budget = 50000m,
+                            Color = "#22c55e",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
-                            Name = "Food & Drinks",
-                            Type = 1
+                            Name = "Salary",
+                            Type = 0
                         },
                         new
                         {
                             Id = 2,
-                            Budget = 1500m,
+                            Budget = 5000m,
+                            Color = "#ef4444",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Food",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Budget = 15000m,
+                            Color = "#3b82f6",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Rent",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Budget = 2000m,
                             Color = "#06b6d4",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
@@ -114,13 +134,43 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 3,
-                            Budget = 50000m,
-                            Color = "#22c55e",
+                            Id = 5,
+                            Budget = 3000m,
+                            Color = "#f59e0b",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
-                            Name = "Salary",
-                            Type = 0
+                            Name = "Transport",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Budget = 4000m,
+                            Color = "#8b5cf6",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Shopping",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Budget = 2000m,
+                            Color = "#ec4899",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Entertainment",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Budget = 1000m,
+                            Color = "#10b981",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDefault = true,
+                            Name = "Health",
+                            Type = 1
                         });
                 });
 
@@ -150,7 +200,6 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Source")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 

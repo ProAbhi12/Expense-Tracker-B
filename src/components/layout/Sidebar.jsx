@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen }) => {
       </nav>
 
       {/* Bottom Settings Link */}
-      <div
+      {/* <div
         className={`absolute bottom-0 w-full p-4 border-t ${dark ? "border-slate-800" : "border-gray-100"}`}
       >
         <Link
@@ -86,7 +86,7 @@ const Sidebar = ({ isOpen }) => {
           <Settings className="mr-3" size={18} />
           <span className="text-sm font-semibold">Settings</span>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };
