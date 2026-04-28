@@ -100,7 +100,7 @@ namespace backend.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
                             Name = "Food & Drinks",
-                            Type = 1
+                            Type = 2
                         },
                         new
                         {
@@ -110,7 +110,7 @@ namespace backend.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
                             Name = "Utilities",
-                            Type = 1
+                            Type = 2
                         },
                         new
                         {
@@ -120,7 +120,7 @@ namespace backend.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDefault = true,
                             Name = "Salary",
-                            Type = 0
+                            Type = 1
                         });
                 });
 
@@ -150,7 +150,6 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Source")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
