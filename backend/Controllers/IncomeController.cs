@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using backend.Data;
+using backend.DTOs; // This fixes CS0246
 using backend.Models;
 using backend.Models.Enums;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -17,84 +18,33 @@ namespace backend.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddIncome([FromBody] AddTransactionDto dto)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetIncomes()
         {
-            if (dto == null)
-                return BadRequest("Invalid data");
+            return await _context.Transactions
+                .Where(t => t.Type == TransactionTypeEnum.INCOME)
+                .Include(t => t.Category)
+                .ToListAsync();
+        }
 
-            if (dto.Amount <= 0)
-                return BadRequest("Amount must be greater than 0");
-
-            var categoryExists = await _context.Categories
-                .AnyAsync(c => c.Id == dto.Id);
-
-            if (!categoryExists)
-                return BadRequest("Invalid category");
-
+        [HttpPost]
+        public async Task<ActionResult<Transaction>> PostIncome([FromBody] AddTransactionDto dto)
+        {
             var transaction = new Transaction
             {
                 Name = dto.Name,
                 Amount = dto.Amount,
-                Method = (TransactionMethod)dto.Method,
-                Date = dto.Date,
-                TransactionId = dto.Id,
+                Type = TransactionTypeEnum.INCOME,
+                CategoryId = dto.CategoryId,
                 Source = dto.Source,
-                Type = TransactionTypeEnum.INCOME
+                Method = dto.Method,
+                Date = dto.Date
             };
 
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
 
-            await _context.Entry(transaction)
-                .Reference(t => t.Category)
-                .LoadAsync();
-
-            return Ok(new
-            {
-                transactionId = transaction.TransactionId,
-                name = transaction.Name,
-                type = transaction.Type.ToString(),
-                amount = transaction.Amount,
-                method = (int)transaction.Method,
-                source = transaction.Source,
-                date = transaction.Date,
-                category = new
-                {
-                    categoryId = transaction.TransactionId,
-                    name = transaction.Category?.Name ?? "Unknown" 
-                }
-            });
+            return Ok(transaction);
         }
-
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllIncome()
-        {
-            var incomes = await _context.Transactions
-                .Where(t => t.Type == TransactionTypeEnum.INCOME)
-                .Include(t => t.Category)
-                .OrderByDescending(t => t.Date)
-                .Select(t => new
-                {
-                    transactionId = t.TransactionId,
-                    name = t.Name,
-                    type = t.Type.ToString(),
-                    amount = t.Amount,
-                    method = (int)t.Method,
-
-                    date = t.Date,
-                    category = t.Category == null ? null : new
-                    {
-                        categoryId = t.TransactionId,
-                        name = t.Category.Name
-                    }
-                })
-                .ToListAsync();
-
-            return Ok(incomes);
-        }
-
-
     }
 }

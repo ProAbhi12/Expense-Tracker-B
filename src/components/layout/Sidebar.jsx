@@ -40,7 +40,7 @@ const Sidebar = ({ isOpen }) => {
           <span
             className={`text-lg font-bold tracking-tight ${dark ? "text-slate-100" : "text-gray-800"}`}
           >
-            ExpenseTracker
+            Income Expense Tracker
           </span>
         </div>
       </div>

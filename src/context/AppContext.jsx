@@ -4,6 +4,7 @@ import React, {
   useContext,
   useMemo,
   useState,
+  useEffect
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -29,12 +30,17 @@ const initialBudgets = [
   { id: 8, name: "Health", budget: 1000, color: "#10b981", type: "EXPENSE", isDefault: true },
 ];
 
-// 🌟 FIXED: Cleared fake data so everything starts at 0
-const initialTransactions = [];
-
 export const AppProvider = ({ children }) => {
   const [budgets, setBudgets] = useState(initialBudgets);
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState([]);
+
+  // Fetch real transactions on load to keep categories updated
+  useEffect(() => {
+    fetch('https://localhost:7197/api/Transactions/alltransactions')
+      .then(res => res.json())
+      .then(data => setTransactions(data))
+      .catch(err => console.error("Context fetch error:", err));
+  }, []);
 
   const addBudget = useCallback((budgetData) => {
     setBudgets((prev) => {
@@ -53,10 +59,14 @@ export const AppProvider = ({ children }) => {
     (categoryName) => {
       if (!categoryName) return 0;
       const target = categoryName.trim().toLowerCase();
-      // Match with real transaction categories
+      
+      // Calculate ONLY for Expenses (Logic fix)
       return transactions
-        .filter(t => (t.categoryName || t.category || "").trim().toLowerCase() === target)
-        .reduce((sum, t) => sum + toNumber(t.amount), 0);
+        .filter(t => 
+           t.type === "EXPENSE" && 
+           (t.categoryName || "").trim().toLowerCase() === target
+        )
+        .reduce((sum, t) => sum + toNumber(t.amount.toString()), 0);
     },
     [transactions],
   );
@@ -68,7 +78,7 @@ export const AppProvider = ({ children }) => {
       addBudget,
       deleteBudget,
       getSpentByCategory,
-      setTransactions // Allow updating transactions from API
+      setTransactions 
     }),
     [budgets, transactions, addBudget, deleteBudget, getSpentByCategory],
   );

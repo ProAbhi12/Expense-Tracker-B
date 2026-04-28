@@ -143,7 +143,7 @@ const Dashboard = () => {
           className={`p-6 rounded-2xl border ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
           <h3 className="font-bold mb-6 flex items-center gap-2 text-sm uppercase opacity-70">
-            <PieIcon size={16} className="text-blue-500" /> Distribution
+            <PieIcon size={16} className="text-blue-500" /> Expense Breakdown
           </h3>
           <div className="h-64">
             <ResponsiveContainer>
