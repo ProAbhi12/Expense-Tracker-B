@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
@@ -8,11 +8,11 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ExpenseController : ControllerBase
+    public class IncomeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ExpenseController(ApplicationDbContext context)
+        public IncomeController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -40,7 +40,7 @@ namespace backend.Controllers
                 Date = dto.Date,
                 TransactionId = dto.Id,
                 Source = dto.Source,
-                Type = TransactionTypeEnum.EXPENSE
+                Type = TransactionTypeEnum.INCOME
             };
 
             _context.Transactions.Add(transaction);
@@ -62,7 +62,7 @@ namespace backend.Controllers
                 category = new
                 {
                     categoryId = transaction.TransactionId,
-                    name = transaction.Category?.Name ?? "Unknown"
+                    name = transaction.Category?.Name ?? "Unknown" 
                 }
             });
         }
@@ -71,8 +71,8 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllIncome()
         {
-            var expenses = await _context.Transactions
-                .Where(t => t.Type == TransactionTypeEnum.EXPENSE)
+            var incomes = await _context.Transactions
+                .Where(t => t.Type == TransactionTypeEnum.INCOME)
                 .Include(t => t.Category)
                 .OrderByDescending(t => t.Date)
                 .Select(t => new
@@ -92,7 +92,7 @@ namespace backend.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(expenses);
+            return Ok(incomes);
         }
 
 

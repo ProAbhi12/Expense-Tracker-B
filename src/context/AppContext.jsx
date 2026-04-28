@@ -1,98 +1,85 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { v4 as uuidv4 } from "uuid";
 
-// ========== CONTEXT SETUP ==========
 const AppContext = createContext(null);
 
-// ========== HELPER FUNCTIONS ==========
-/**
- * Safely converts any value to a number
- * Handles: numbers, strings with commas (1,500), invalid values
- */
 const toNumber = (value) => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : 0;
-  }
-
-  if (typeof value !== 'string') {
-    return 0;
-  }
-
-  const cleaned = value.replace(/,/g, '').trim();
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value !== "string") return 0;
+  const cleaned = value.replace(/,/g, "").trim();
   const num = Number(cleaned);
-
   return Number.isFinite(num) ? num : 0;
 };
 
+// 🌟 THE 8 MASTER DEFAULT CATEGORIES
 const initialBudgets = [
-  { id: uuidv4(), category: 'Food', budget: 3000, color: '#ef4444' },
-  { id: uuidv4(), category: 'Transportation', budget: 1500, color: '#3b82f6' },
-  { id: uuidv4(), category: 'Housing', budget: 10000, color: '#f59e0b' },
-  { id: uuidv4(), category: 'Entertainment', budget: 100, color: '#10b981' },
-  { id: uuidv4(), category: 'Shopping', budget: 2000, color: '#8b5cf6' },
+  { id: 1, name: "Salary", budget: 50000, color: "#22c55e", type: "INCOME", isDefault: true },
+  { id: 2, name: "Food", budget: 5000, color: "#ef4444", type: "EXPENSE", isDefault: true },
+  { id: 3, name: "Rent", budget: 15000, color: "#3b82f6", type: "EXPENSE", isDefault: true },
+  { id: 4, name: "Utilities", budget: 2000, color: "#06b6d4", type: "EXPENSE", isDefault: true },
+  { id: 5, name: "Transport", budget: 3000, color: "#f59e0b", type: "EXPENSE", isDefault: true },
+  { id: 6, name: "Shopping", budget: 4000, color: "#8b5cf6", type: "EXPENSE", isDefault: true },
+  { id: 7, name: "Entertainment", budget: 2000, color: "#ec4899", type: "EXPENSE", isDefault: true },
+  { id: 8, name: "Health", budget: 1000, color: "#10b981", type: "EXPENSE", isDefault: true },
 ];
 
-const initialTransactions = [
-  { id: uuidv4(), category: 'Food', amount: "450" },
-  { id: uuidv4(), category: 'Transportation', amount: "750" },
-  { id: uuidv4(), category: 'Entertainment', amount: "1000" },
-  { id: uuidv4(), category: 'Shopping', amount: "1400" },
-];
+// 🌟 FIXED: Cleared fake data so everything starts at 0
+const initialTransactions = [];
 
-// ========== APP PROVIDER COMPONENT ==========
 export const AppProvider = ({ children }) => {
   const [budgets, setBudgets] = useState(initialBudgets);
-  const [transactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState(initialTransactions);
 
-  const addBudget = useCallback(budget => {
-    const normalizedCategory = budget.category.trim().toLowerCase();
-
-    setBudgets(currentBudgets => {
-      const existingBudget = currentBudgets.find(
-        item => item.category.trim().toLowerCase() === normalizedCategory,
-      );
-
-      if (!existingBudget) {
-        return [...currentBudgets, { ...budget, id: uuidv4() }];
+  const addBudget = useCallback((budgetData) => {
+    setBudgets((prev) => {
+      if (budgetData.id) {
+        return prev.map((b) => (b.id === budgetData.id ? { ...b, ...budgetData } : b));
       }
-
-      return currentBudgets.map(item => (
-        item.id === existingBudget.id ? { ...item, ...budget, id: item.id } : item
-      ));
+      return [...prev, { ...budgetData, id: Date.now(), isDefault: false }];
     });
   }, []);
 
-  const deleteBudget = useCallback(budgetId => {
-    setBudgets(currentBudgets => currentBudgets.filter(budget => budget.id !== budgetId));
+  const deleteBudget = useCallback((budgetId) => {
+    setBudgets((current) => current.filter((b) => b.id !== budgetId));
   }, []);
 
-  const getSpentByCategory = useCallback(category => {
-    const normalizedCategory = category.trim().toLowerCase();
-    return transactions
-      .filter(transaction => transaction.category.trim().toLowerCase() === normalizedCategory)
-      .reduce((total, transaction) => total + toNumber(transaction.amount), 0);
-  }, [transactions]);
+  const getSpentByCategory = useCallback(
+    (categoryName) => {
+      if (!categoryName) return 0;
+      const target = categoryName.trim().toLowerCase();
+      // Match with real transaction categories
+      return transactions
+        .filter(t => (t.categoryName || t.category || "").trim().toLowerCase() === target)
+        .reduce((sum, t) => sum + toNumber(t.amount), 0);
+    },
+    [transactions],
+  );
 
-  const contextValue = useMemo(() => ({
-    budgets,
-    transactions,
-    addBudget,
-    deleteBudget,
-    getSpentByCategory,
-  }), [budgets, transactions, addBudget, deleteBudget, getSpentByCategory]);
+  const contextValue = useMemo(
+    () => ({
+      budgets,
+      transactions,
+      addBudget,
+      deleteBudget,
+      getSpentByCategory,
+      setTransactions // Allow updating transactions from API
+    }),
+    [budgets, transactions, addBudget, deleteBudget, getSpentByCategory],
+  );
 
   return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };
 
-// ========== CUSTOM HOOK ==========
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('❌ useApp must be used inside <AppProvider>');
-  }
+  if (!context) throw new Error("❌ useApp must be used inside <AppProvider>");
   return context;
 };

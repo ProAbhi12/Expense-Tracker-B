@@ -12,6 +12,9 @@ import {
   BookOpen,
   Receipt,
   X,
+  Edit2,
+  PieChart as PieIcon,
+  Activity,
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import {
@@ -29,18 +32,17 @@ import {
 } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 
-// ========== CONSTANTS & HELPERS ==========
-const CATEGORY_OPTIONS = [
-  { category: "Food", color: "#ef4444" },
-  { category: "Transportation", color: "#3b82f6" },
-  { category: "Housing", color: "#f59e0b" },
-  { category: "Entertainment", color: "#10b981" },
-  { category: "Shopping", color: "#8b5cf6" },
-  { category: "Utilities", color: "#06b6d4" },
-  { category: "Health", color: "#ec4899" },
-  { category: "Gym", color: "#7c3aed" },
-  { category: "Education", color: "#f97316" },
-];
+// ========== ICON MAPPING ==========
+const ICON_MAP = {
+  Salary: Receipt,
+  Food: UtensilsCrossed,
+  Rent: Home,
+  Utilities: Lightbulb,
+  Transport: Car,
+  Shopping: ShoppingCart,
+  Entertainment: Film,
+  Health: Heart,
+};
 
 const COLOR_SWATCHES = [
   "#ef4444",
@@ -53,397 +55,220 @@ const COLOR_SWATCHES = [
   "#ec4899",
   "#334155",
 ];
-const trendMultipliers = { daily: 0.08, weekly: 0.35, monthly: 1, yearly: 12 };
 
 const formatCurrency = (amount) => `Rs. ${amount.toLocaleString()}`;
+const getIcon = (name) => ICON_MAP[name] || Receipt;
 
-const getIconComponent = (categoryName) => {
-  const iconMap = {
-    Food: UtensilsCrossed,
-    Transportation: Car,
-    Housing: Home,
-    Entertainment: Film,
-    Shopping: ShoppingCart,
-    Utilities: Lightbulb,
-    Health: Heart,
-    Gym: Heart,
-    Education: BookOpen,
-  };
-  return iconMap[categoryName] || Receipt;
-};
-
-const getSmartIconForCustom = (categoryName) => {
-  const name = categoryName.toLowerCase().trim();
-  if (["petrol", "gas", "car", "bike", "taxi"].some((k) => name.includes(k)))
-    return { icon: Car, color: "#3b82f6" };
-  if (
-    ["food", "grocery", "eat", "meal", "restaurant"].some((k) =>
-      name.includes(k),
-    )
-  )
-    return { icon: UtensilsCrossed, color: "#ef4444" };
-  if (["bill", "wifi", "phone", "light"].some((k) => name.includes(k)))
-    return { icon: Lightbulb, color: "#06b6d4" };
-  if (["movie", "game", "fun", "party"].some((k) => name.includes(k)))
-    return { icon: Film, color: "#10b981" };
-  if (["gym", "health", "doctor", "medicine"].some((k) => name.includes(k)))
-    return { icon: Heart, color: "#ec4899" };
-  if (["shopping", "buy", "clothes", "mall"].some((k) => name.includes(k)))
-    return { icon: ShoppingCart, color: "#8b5cf6" };
-  if (["rent", "home", "house", "room"].some((k) => name.includes(k)))
-    return { icon: Home, color: "#f59e0b" };
-  return { icon: BookOpen, color: "#9ca3af" };
-};
-
-// ========== ADD BUDGET MODAL COMPONENT ==========
-const AddBudgetModal = ({ onClose }) => {
-  const { addBudget } = useApp();
+// ========== ADD/EDIT MODAL COMPONENT ==========
+const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
   const { dark } = useTheme();
-  const [selectedPreset, setSelectedPreset] = useState(
-    CATEGORY_OPTIONS[0].category,
+  const [form, setForm] = useState(
+    editingCategory || {
+      name: "",
+      budget: "",
+      color: COLOR_SWATCHES[0],
+      type: "EXPENSE",
+    },
   );
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [error, setError] = useState("");
-  const [form, setForm] = useState({
-    category: CATEGORY_OPTIONS[0].category,
-    budget: "",
-    color: CATEGORY_OPTIONS[0].color,
-    type: "EXPENSE",
-  });
 
-  const onSubmit = async () => {
-    const amount = parseFloat(form.budget.toString().replace(/,/g, ""));
-    if (!form.category.trim()) return setError("Please enter a name");
-    if (isNaN(amount) || amount <= 0)
-      return setError("Please enter a valid amount");
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const budgetVal = parseFloat(form.budget.toString().replace(/,/g, ""));
+    if (!form.name || isNaN(budgetVal)) return;
+
     try {
-      // POST request to add category
-      const response = await fetch("https://localhost:7197/api/Category", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const url = editingCategory
+        ? `https://localhost:7197/api/Category/${editingCategory.id}`
+        : "https://localhost:7197/api/Category";
+
+      const method = editingCategory ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.category,
-          type: form.type,
+          id: editingCategory?.id || 0,
+          name: form.name,
+          budget: budgetVal,
           color: form.color,
-          budget: amount,
+          type: form.type === "INCOME" ? 0 : 1,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to add category: ${response.status}`);
+      if (response.ok) {
+        onRefresh();
+        onClose();
       }
-
-      addBudget({ ...form, budget: amount });
-      onClose();
-    } catch (error) {
-      console.error("Error adding category:", error);
-      setError("Failed to add category");
+    } catch (err) {
+      console.error("Save failed:", err);
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-sm transition-all"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
-        className={`w-full max-w-md rounded-xl border shadow-xl ${dark ? "border-slate-700 bg-slate-900 text-slate-100" : "border-gray-200 bg-white text-gray-800"}`}
+        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-200 text-gray-800"}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Add Category</h2>
+          <h2 className="text-xl font-bold">
+            {editingCategory ? "Edit Category" : "New Category"}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1"
+            className="text-gray-400 hover:text-gray-600"
           >
             <X size={20} />
           </button>
         </div>
-
-        <div className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-2 px-1">
-              Flow Type
-            </label>
-            <div
-              className={`flex p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-gray-100"}`}
-            >
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, type: "EXPENSE" })}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.type === "EXPENSE" ? "bg-red-600 text-white shadow-md" : "text-gray-500"}`}
-              >
-                Expense
-              </button>
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, type: "INCOME" })}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${form.type === "INCOME" ? "bg-green-600 text-white shadow-md" : "text-gray-500"}`}
-              >
-                Income
-              </button>
-            </div>
-          </div>
-
-          <div className="relative">
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1 px-1">
-              Select Category
-            </label>
-            <button
-              type="button"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className={`w-full p-3 border rounded-lg flex justify-between items-center text-sm font-medium transition-all ${
-                dropdownOpen
-                  ? "border-blue-500 ring-2 ring-blue-500/10"
-                  : dark
-                    ? "border-slate-700 bg-slate-800"
-                    : "border-gray-300 bg-white"
-              }`}
-            >
-              <span className="flex items-center gap-3">
-                {selectedPreset === "custom" ? (
-                  <div className="w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded">
-                    ✨
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded">
-                    {React.createElement(getIconComponent(selectedPreset), {
-                      size: 14,
-                    })}
-                  </div>
-                )}
-                {selectedPreset === "custom"
-                  ? "Custom Category"
-                  : selectedPreset}
-              </span>
-              <span
-                className={`text-xs transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
-              >
-                ▼
-              </span>
-            </button>
-
-            {dropdownOpen && (
-              <div
-                className={`absolute top-full left-0 right-0 z-50 mt-2 rounded-xl border shadow-2xl overflow-hidden ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"}`}
-              >
-                <div className="max-h-60 overflow-y-auto p-1.5 grid grid-cols-1 gap-1">
-                  {CATEGORY_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.category}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPreset(opt.category);
-                        setForm({
-                          ...form,
-                          category: opt.category,
-                          color: opt.color,
-                        });
-                        setDropdownOpen(false);
-                      }}
-                      className={`w-full p-2.5 text-left rounded-lg text-sm flex items-center gap-3 transition-colors ${
-                        selectedPreset === opt.category
-                          ? "bg-blue-600 text-white shadow-md"
-                          : dark
-                            ? "hover:bg-slate-700 text-slate-300"
-                            : "hover:bg-slate-50 text-slate-600"
-                      }`}
-                    >
-                      <div
-                        className={`w-6 h-6 rounded flex items-center justify-center ${selectedPreset === opt.category ? "bg-white/20" : "bg-slate-100 dark:bg-slate-600"}`}
-                      >
-                        {React.createElement(getIconComponent(opt.category), {
-                          size: 12,
-                        })}
-                      </div>
-                      <span className="font-semibold">{opt.category}</span>
-                    </button>
-                  ))}
-                  <div className="h-px bg-gray-100 dark:bg-slate-700 my-1 mx-2"></div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedPreset("custom");
-                      setForm({ ...form, category: "" });
-                      setDropdownOpen(false);
-                    }}
-                    className="w-full p-2.5 text-left text-sm text-blue-600 font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg flex items-center gap-3"
-                  >
-                    <div className="w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded text-xs">
-                      ✨
-                    </div>
-                    Create Custom
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {selectedPreset === "custom" && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                Category Name
-              </label>
-              <input
-                value={form.category}
-                maxLength={20}
-                onChange={(e) => {
-                  const smart = getSmartIconForCustom(e.target.value);
-                  setForm({
-                    ...form,
-                    category: e.target.value,
-                    color: smart.color,
-                  });
-                }}
-                className={`w-full p-2.5 border rounded-lg text-sm ${dark ? "bg-slate-800 border-slate-700 text-white" : "border-gray-300"}`}
-                placeholder="e.g. Petrol, Gym..."
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-              Budget Amount (Rs.)
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              Category Name
             </label>
             <input
-              value={form.budget}
-              onChange={(e) => setForm({ ...form, budget: e.target.value })}
-              className={`w-full p-2.5 border rounded-lg text-sm font-medium ${dark ? "bg-slate-800 border-slate-700 text-white" : "border-gray-300"}`}
-              placeholder="1500"
+              className={`w-full p-2.5 border rounded-xl outline-none ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="e.g. Groceries"
+              required
+              disabled={editingCategory?.isDefault}
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                Type
+              </label>
+              <select
+                className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                disabled={editingCategory?.isDefault}
+              >
+                <option value="EXPENSE">Expense</option>
+                <option value="INCOME">Income</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                Budget Limit
+              </label>
+              <input
+                className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+                value={form.budget}
+                onChange={(e) => setForm({ ...form, budget: e.target.value })}
+                placeholder="3000"
+                required
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-              Color
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">
+              Category Color
             </label>
-            <div className="flex flex-wrap gap-2 p-2 border rounded-lg dark:border-slate-700">
+            <div className="flex flex-wrap gap-2 p-3 border rounded-xl dark:border-slate-800">
               {COLOR_SWATCHES.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setForm({ ...form, color: c })}
-                  className={`h-6 w-6 rounded-full border-2 ${form.color === c ? "border-gray-900 dark:border-white scale-110" : "border-transparent opacity-60"}`}
+                  className={`h-7 w-7 rounded-full border-2 transition-all ${form.color === c ? "border-blue-500 scale-110 shadow-lg" : "border-transparent opacity-50"}`}
                   style={{ background: c }}
                 />
               ))}
             </div>
           </div>
 
-          {error && <p className="text-red-500 text-xs font-bold">{error}</p>}
-
-          <div className="flex gap-2 pt-4">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onSubmit}
-              className="flex-1 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Save Category
-            </button>
-          </div>
-        </div>
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20"
+          >
+            Save Changes
+          </button>
+        </form>
       </div>
     </div>
   );
 };
 
 // ========== BUDGET CARD COMPONENT ==========
-const BudgetCard = ({ budget }) => {
-  const { getSpentByCategory, deleteBudget } = useApp();
+const BudgetCard = ({ category, onEdit, onDelete }) => {
+  const { getSpentByCategory } = useApp();
   const { dark } = useTheme();
-
-  const smart = getSmartIconForCustom(budget.category);
-  const isPreset = CATEGORY_OPTIONS.some((c) => c.category === budget.category);
-
-  const spent = getSpentByCategory(budget.category);
-  const remaining = budget.budget - spent;
-  const percentage = Math.min((spent / budget.budget) * 100, 100);
-
-  const handleDelete = async () => {
-    try {
-      const response = await fetch(`https://localhost:7197/api/Category/${budget.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
-      }
-
-      console.log("Delete successful:", budget.id);
-      // Update local state after successful API call
-      deleteBudget(budget.id);
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      alert("Failed to delete category");
-    }
-  };
+  const Icon = getIcon(category.name);
+  const spent = getSpentByCategory(category.name);
+  const remaining = category.budget - spent;
+  const percentage = Math.min((spent / (category.budget || 1)) * 100, 100);
 
   return (
     <div
-      className={`rounded-2xl border p-5 transition hover:shadow-md ${dark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"}`}
+      className={`group rounded-2xl border p-5 transition-all hover:shadow-md ${dark ? "border-slate-800 bg-slate-900" : "bg-white border-gray-100 shadow-sm"}`}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            className="p-2.5 rounded-xl shadow-sm"
+            className="p-3 rounded-xl"
             style={{
-              backgroundColor: `${budget.color}15`,
-              color: budget.color,
+              backgroundColor: `${category.color}15`,
+              color: category.color,
             }}
           >
-            {React.createElement(
-              isPreset ? getIconComponent(budget.category) : smart.icon,
-              { size: 20 },
-            )}
+            <Icon size={20} />
           </div>
           <div>
-            <h3
-              className={`font-bold ${dark ? "text-white" : "text-slate-900"}`}
-            >
-              {budget.category}
-            </h3>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-              Budget: {formatCurrency(budget.budget)}
+            <h3 className="font-bold text-sm">{category.name}</h3>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+              Limit: {formatCurrency(category.budget)}
             </p>
           </div>
         </div>
-
-        <button
-          onClick={handleDelete}
-          className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <Trash2 size={16} />
-        </button>
-        
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => onEdit(category)}
+            className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+          >
+            <Edit2 size={14} />
+          </button>
+          {!category.isDefault && (
+            <button
+              onClick={() => onDelete(category.id)}
+              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
       <div
-        className={`h-2.5 w-full rounded-full overflow-hidden ${dark ? "bg-slate-800" : "bg-slate-100"}`}
+        className={`h-2.5 w-full rounded-full overflow-hidden ${dark ? "bg-slate-800" : "bg-gray-100"}`}
       >
         <div
-          className="h-full transition-all duration-700 ease-out"
-          style={{ width: `${percentage}%`, background: budget.color }}
+          className="h-full transition-all duration-1000 ease-out rounded-full"
+          style={{
+            width: `${percentage}%`,
+            background: spent > category.budget ? "#ef4444" : category.color,
+          }}
         />
       </div>
-      <div className="flex justify-between mt-3 text-xs font-bold">
-        <span className="opacity-60">{Math.round(percentage)}% used</span>
+      <div className="flex justify-between mt-3 text-[10px] font-black uppercase tracking-tighter">
+        <span className="text-gray-400">
+          {Math.round(percentage)}% of limit used
+        </span>
         <span
           className={
-            remaining < 0 ? "text-red-500 animate-pulse" : "text-green-600"
+            spent > category.budget
+              ? "text-red-500 animate-pulse"
+              : "text-green-600"
           }
         >
-          {remaining < 0
-            ? `Rs. ${Math.abs(remaining)} over!`
+          {spent > category.budget
+            ? "Over Limit!"
             : `${formatCurrency(remaining)} left`}
         </span>
       </div>
@@ -453,79 +278,86 @@ const BudgetCard = ({ budget }) => {
 
 // ========== MAIN PAGE ==========
 const Budgets = () => {
-  const { budgets, setBudgetsFromAPI } = useApp();
   const { dark } = useTheme();
-  const [showModal, setShowModal] = useState(false);
-  const [trendRange, setTrendRange] = useState("monthly");
+  const [budgets, setBudgets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ open: false, data: null });
 
-  // GET - Fetch categories on component mount
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("https://localhost:7197/api/Category");
+      const data = await res.json();
+      setBudgets(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    await fetch(`https://localhost:7197/api/Category/${id}`, {
+      method: "DELETE",
+    });
+    loadData();
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("https://localhost:7197/api/Category");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch categories: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("Fetched categories:", data);
-        // Update the context with API data
-        setBudgetsFromAPI(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    
-    fetchCategories();
-  }, [setBudgetsFromAPI]);
-
-  const axisStroke = dark ? "#94a3b8" : "#64748b";
-  const gridStroke = dark ? "#334155" : "#e2e8f0";
+    loadData();
+  }, []);
 
   const chartData = budgets.map((b) => ({
-    name: b.category,
+    name: b.name,
     value: b.budget,
     color: b.color,
-  }));
-  const trendData = budgets.map((b) => ({
-    label: b.category,
-    value: b.budget * trendMultipliers[trendRange],
   }));
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex justify-between items-center">
         <div>
           <h2
-            className={`text-2xl sm:text-3xl font-bold ${dark ? "text-white" : "text-slate-900"}`}
+            className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}
           >
-            Budget Categories
+            Categories with Budget
           </h2>
-          <p className="text-sm opacity-60 font-medium">
-            Manage your spending limits and distributions.
+          <p className="text-xs text-gray-500 mt-1 font-medium">
+            Control your monthly limits per category.
           </p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
+          onClick={() => setModal({ open: true, data: null })}
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/20"
         >
-          <Plus size={18} /> New Category
+          + New Category
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {budgets.map((b) => (
-          <BudgetCard key={b.id} budget={b} />
-        ))}
+        {loading ? (
+          <div className="col-span-full p-20 text-center text-gray-400 italic">
+            Syncing with SQL Server...
+          </div>
+        ) : (
+          budgets.map((b) => (
+            <BudgetCard
+              key={b.id}
+              category={b}
+              onEdit={(d) => setModal({ open: true, data: d })}
+              onDelete={deleteCategory}
+            />
+          ))
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Budget Overview (Charts) */}
+      {!loading && budgets.length > 0 && (
         <div
-          className={`rounded-2xl border p-6 shadow-sm ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}
+          className={`rounded-2xl border p-6 ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
-          <h3
-            className={`font-bold mb-6 flex items-center gap-2 underline decoration-blue-500 decoration-4 underline-offset-8 ${dark ? "text-white" : ""}`}
-          >
-            Distribution
+          <h3 className="font-bold mb-6 text-sm uppercase tracking-widest opacity-60 flex items-center gap-2">
+            <PieIcon size={16} className="text-blue-500" /> Budget Distribution
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -534,75 +366,32 @@ const Budgets = () => {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={4}
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={5}
                   dataKey="value"
                 >
-                  {chartData.map((e, i) => (
-                    <Cell key={i} fill={e.color} />
+                  {chartData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{
-                    borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                  }}
+                  formatter={(value) => `Rs. ${value.toLocaleString()}`}
                 />
-                <Legend iconType="circle" />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
+      )}
 
-        <div
-          className={`rounded-2xl border p-6 shadow-sm ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h3
-              className={`font-bold underline decoration-green-500 decoration-4 underline-offset-8 ${dark ? "text-white" : ""}`}
-            >
-              Trends
-            </h3>
-            <select
-              value={trendRange}
-              onChange={(e) => setTrendRange(e.target.value)}
-              className={`px-3 py-1 text-xs font-semibold border rounded-lg ${dark ? "bg-slate-800 border-slate-700 text-white" : "bg-white border-slate-300"}`}
-            >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-                <XAxis dataKey="label" stroke={axisStroke} tick={{ fontSize: 12 }} />
-                <YAxis stroke={axisStroke} tick={{ fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#3b82f6"
-                  dot={{ fill: "#3b82f6", r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {showModal && <AddBudgetModal onClose={() => setShowModal(false)} />}
+      {modal.open && (
+        <CategoryModal
+          onClose={() => setModal({ open: false, data: null })}
+          onRefresh={loadData}
+          editingCategory={modal.data}
+        />
+      )}
     </div>
   );
 };

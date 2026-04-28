@@ -98,16 +98,8 @@ const Dashboard = () => {
         <h1
           className={`text-2xl font-bold ${dark ? "text-white" : "text-gray-800"}`}
         >
-          Dashboard
+          Dashboard Overview{" "}
         </h1>
-        <div className="flex gap-2">
-          <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-green-600/20">
-            + Income
-          </button>
-          <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-red-600/20">
-            + Expense
-          </button>
-        </div>
       </div>
 
       {/* KPI Cards */}
@@ -253,7 +245,7 @@ const Dashboard = () => {
           ))}
           {recentTransactions.length === 0 && (
             <div className="p-10 text-center text-gray-400 text-xs italic font-medium">
-              No live transactions found in SQL database.
+              No transactions found in SQL database.
             </div>
           )}
         </div>
