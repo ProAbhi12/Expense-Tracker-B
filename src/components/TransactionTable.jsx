@@ -1,124 +1,114 @@
 import React from "react";
+import { Trash2, Edit2, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
-export default function TransactionTable({ transactions, dark }) {
-  const getTypeColor = (type) => {
-    return type === "INCOME"
-      ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-700";
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+const TransactionTable = ({ transactions, onDelete, onEdit, dark }) => {
+  const formatRs = (num) => `Rs. ${Math.abs(num).toLocaleString()}`;
 
   return (
-    <div
-      className={`rounded-2xl border overflow-hidden transition ${
-        dark
-          ? "bg-slate-900 border-slate-700 shadow-[0_8px_24px_rgba(148,163,184,0.12)]"
-          : "bg-white border-gray-200 shadow-sm"
-      }`}
-    >
-      <table className="w-full">
-        <thead
-          className={`${dark ? "bg-slate-800 border-b border-slate-700" : "bg-gray-50 border-b"}`}
-        >
-          <tr>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className={dark ? "bg-slate-800" : "bg-gray-100"}>
             <th
-              className={`px-6 py-4 text-left text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
+              className={`px-6 py-4 text-xs font-black uppercase tracking-widest ${dark ? "text-slate-100" : "text-black"}`}
             >
-              Date
+              Transaction
             </th>
             <th
-              className={`px-6 py-4 text-left text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
-            >
-              Description
-            </th>
-            <th
-              className={`px-6 py-4 text-left text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
+              className={`px-6 py-4 text-xs font-black uppercase tracking-widest ${dark ? "text-slate-100" : "text-black"}`}
             >
               Category
             </th>
             <th
-              className={`px-6 py-4 text-left text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
+              className={`px-6 py-4 text-xs font-black uppercase tracking-widest ${dark ? "text-slate-100" : "text-black"}`}
             >
-              Source
+              Date
             </th>
             <th
-              className={`px-6 py-4 text-left text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
-            >
-              Method
-            </th>
-            <th
-              className={`px-6 py-4 text-right text-sm font-semibold ${dark ? "text-slate-300" : "text-gray-600"}`}
+              className={`px-6 py-4 text-xs font-black uppercase tracking-widest text-right ${dark ? "text-slate-100" : "text-black"}`}
             >
               Amount
             </th>
+            <th
+              className={`px-6 py-4 text-center text-xs font-black uppercase tracking-widest ${dark ? "text-slate-100" : "text-black"}`}
+            >
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody className={dark ? "divide-y divide-slate-700" : "divide-y"}>
-          {transactions.map((tx) => (
+        <tbody
+          className={`divide-y ${dark ? "divide-slate-800" : "divide-gray-200"}`}
+        >
+          {transactions.map((t) => (
             <tr
-              key={tx.id}
-              className={`transition-colors ${dark ? "hover:bg-slate-800/70" : "hover:bg-gray-50"}`}
+              key={t.id}
+              className={`transition-colors ${dark ? "hover:bg-slate-800/50" : "hover:bg-gray-50"}`}
             >
-              <td
-                className={`px-6 py-5 text-sm ${dark ? "text-slate-400" : "text-gray-600"}`}
-              >
-                {formatDate(tx.date)}
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center ${t.type === "INCOME" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}
+                  >
+                    {t.type === "INCOME" ? (
+                      <ArrowUpCircle size={18} />
+                    ) : (
+                      <ArrowDownCircle size={18} />
+                    )}
+                  </div>
+                  <div>
+                    <p
+                      className={`text-sm font-black ${dark ? "text-white" : "text-black"}`}
+                    >
+                      {t.name}
+                    </p>
+                    <p className={`text-[10px] font-black uppercase ...`}>
+                      {["Cash", "eSewa", "Khalti", "Mobile Banking"][
+                        t.method
+                      ] ?? t.method}
+                    </p>
+                    {/* <p className={`text-[10px] font-black uppercase ${dark ? "text-slate-400" : "text-black opacity-60"}`}>{t.method}</p> */}
+                  </div>
+                </div>
               </td>
-              <td
-                className={`px-6 py-5 font-medium ${dark ? "text-slate-100" : "text-gray-800"}`}
-              >
-                {tx.name}
-              </td>
-
-              <td className="px-6 py-5">
+              <td className="px-6 py-4">
                 <span
-                  className={`text-sm ${dark ? "text-slate-300" : "text-gray-700"}`}
+                  className={`px-2 py-1 text-[10px] font-black rounded-full uppercase border-2 ${dark ? "border-slate-700 text-slate-100" : "border-gray-900 text-black"}`}
                 >
-                  {tx?.categoryName ?? tx?.category ?? "Uncategorized"}
+                  {t.categoryName}
                 </span>
               </td>
-
               <td
-                className={`px-6 py-5 text-sm ${dark ? "text-slate-400" : "text-gray-600"}`}
+                className={`px-6 py-4 text-sm font-bold ${dark ? "text-slate-300" : "text-black"}`}
               >
-                {tx.source}
+                {new Date(t.date).toLocaleDateString()}
               </td>
-              <td className="px-6 py-5">
-                <span
-                  className={`text-xs px-3 py-1 rounded-full ${dark ? "bg-slate-700 text-slate-200" : "bg-gray-100 text-gray-600"}`}
-                >
-                  {tx.method}
-                </span>
+              <td
+                className={`px-6 py-4 text-sm font-black text-right ${t.type === "INCOME" ? "text-green-600" : "text-red-600"}`}
+              >
+                {t.type === "INCOME" ? "+" : "-"} {formatRs(t.amount)}
               </td>
-              <td className="px-6 py-5 text-right font-semibold">
-                <span
-                  className={
-                    tx.type === "INCOME" ? "text-green-600" : "text-red-600"
-                  }
-                >
-                  {tx.type === "INCOME" ? "+" : "-"}
-                  Rs. {tx.amount.toLocaleString()}
-                </span>
+              <td className="px-6 py-4 text-center">
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => onEdit(t)}
+                    className={`p-2 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-white" : "text-black hover:bg-gray-100"}`}
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => onDelete(t.id, t.type)}
+                    className={`p-2 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-red-500" : "text-black hover:bg-red-50"}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {transactions.length === 0 && (
-        <div
-          className={`text-center py-12 ${dark ? "text-slate-400" : "text-gray-500"}`}
-        >
-          No transactions found
-        </div>
-      )}
     </div>
   );
-}
+};
+
+export default TransactionTable;

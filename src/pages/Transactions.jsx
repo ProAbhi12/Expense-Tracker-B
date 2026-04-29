@@ -1,134 +1,134 @@
 import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Filter,
+  Plus,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Trash2,
+} from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 import TransactionTable from "../components/TransactionTable";
 import TransactionFilters from "../components/TransactionFIlters";
 import AddTransactionModal from "../components/AddTransactionModal";
-import { useTheme } from "../context/ThemeContext";
 
 const API_BASE_URL = "https://localhost:7197/api";
 
-export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterType, setFilterType] = useState("ALL");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
+const Transactions = () => {
   const { dark } = useTheme();
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null); // TRACK EDITING
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("ALL");
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${API_BASE_URL}/Transactions/alltransactions`,
+      );
+      const data = await response.json();
+      setTransactions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
-  const fetchTransactions = async () => {
-    setIsLoading(true);
-    setError("");
-
+  const handleDelete = async (id, type) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
+    const controller = type === "INCOME" ? "Income" : "Expense";
     try {
-      // Fetching all transactions from our new unified endpoint
-      const response = await fetch(
-        `${API_BASE_URL}/Transactions/alltransactions`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch transactions from server");
-      }
-
-      const data = await response.json();
-      // console.log("Fetched transactions:", data);
-      setTransactions(data);
-    } catch (err) {
-      console.error("Error fetching transactions:", err);
-      setError(err.message || "Failed to load transactions");
-    } finally {
-      setIsLoading(false);
+      const response = await fetch(`${API_BASE_URL}/${controller}/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) fetchTransactions();
+    } catch (error) {
+      console.error("Delete error:", error);
     }
   };
 
-  const filteredTransactions = transactions
-    .filter((tx) => {
-      const matchesType = filterType === "ALL" || tx.type === filterType;
-      const q = searchTerm.trim().toLowerCase();
-      const matchesSearch =
-        q.length === 0 ||
-        (tx.name || "").toLowerCase().includes(q) ||
-        (tx.categoryName || "").toLowerCase().includes(q);
-
-      return matchesType && matchesSearch;
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const handleAddTransaction = () => {
-    fetchTransactions(); // Simply refresh the list after adding
+  // --- OPEN MODAL IN EDIT MODE ---
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+    setIsModalOpen(true);
   };
+
+  // --- OPEN MODAL IN NEW MODE ---
+  const openNewModal = () => {
+    setEditingTransaction(null);
+    setIsModalOpen(true);
+  };
+
+  const filteredData = transactions.filter((t) => {
+    const matchesType = filterType === "ALL" || t.type === filterType;
+    const q = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      q.length === 0 ||
+      (t.name || "").toLowerCase().includes(q) ||
+      (t.categoryName || "").toLowerCase().includes(q);
+    return matchesType && matchesSearch;
+  });
 
   const totalIncome = transactions
     .filter((t) => t.type === "INCOME")
     .reduce((sum, tx) => sum + tx.amount, 0);
-
   const totalExpense = transactions
     .filter((t) => t.type === "EXPENSE")
     .reduce((sum, tx) => sum + tx.amount, 0);
 
-  const balance = totalIncome - totalExpense;
-
   return (
     <div
-      className={`p-6 space-y-6 min-h-screen ${dark ? "bg-slate-900" : "bg-gray-50"}`}
+      className={`p-6 space-y-6 min-h-screen ${dark ? "bg-slate-900 text-white" : "bg-gray-50"}`}
     >
-      {/* Header */}
       <div className="flex justify-between items-center px-1">
         <div>
-          <h1
-            className={`text-3xl font-bold ${dark ? "text-slate-100" : "text-gray-800"}`}
-          >
-            Transactions
-          </h1>
-          <p
-            className={`text-sm mt-1 ${dark ? "text-slate-400" : "text-gray-500"}`}
-          >
-            History of your financial activities
+          <h1 className="text-3xl font-bold">Transaction History</h1>
+          <p className="text-sm opacity-60 font-medium tracking-tight">
+            Manage your financial logs with real-time SQL connection.
           </p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95"
+          onClick={openNewModal}
+          className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
         >
           + Add Transaction
         </button>
       </div>
 
-      {/* Summary Cards - Corrected Math */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div
-          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700 text-white shadow-none" : "bg-white border-gray-100 shadow-sm"}`}
+          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100 shadow-sm"}`}
         >
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-            Available Balance
+            Balance
           </p>
-          <p
-            className={`text-2xl font-black ${balance >= 0 ? "text-blue-600" : "text-red-500"}`}
-          >
-            Rs. {balance.toLocaleString()}
+          <p className="text-2xl font-black text-blue-600">
+            Rs. {(totalIncome - totalExpense).toLocaleString()}
           </p>
         </div>
-
         <div
-          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700 text-white shadow-none" : "bg-white border-gray-100 shadow-sm"}`}
+          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100 shadow-sm"}`}
         >
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-            Total Income
+            Income
           </p>
           <p className="text-2xl font-black text-green-600">
             Rs. {totalIncome.toLocaleString()}
           </p>
         </div>
-
         <div
-          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700 text-white shadow-none" : "bg-white border-gray-100 shadow-sm"}`}
+          className={`p-6 rounded-2xl border ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100 shadow-sm"}`}
         >
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-            Total Expenses
+            Expense
           </p>
           <p className="text-2xl font-black text-red-500">
             Rs. {totalExpense.toLocaleString()}
@@ -144,24 +144,32 @@ export default function Transactions() {
         dark={dark}
       />
 
-      {isLoading ? (
+      {loading ? (
         <div className="p-20 text-center text-gray-400 italic">
           Syncing with SQL Server...
         </div>
-      ) : error ? (
-        <div className="p-10 text-center text-red-500 font-bold bg-red-50 rounded-xl border border-red-100">
-          {error}
-        </div>
       ) : (
-        <TransactionTable transactions={filteredTransactions} dark={dark} />
+        <div
+          className={`rounded-xl border shadow-sm overflow-hidden ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"}`}
+        >
+          <TransactionTable
+            transactions={filteredData}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            dark={dark}
+          />
+        </div>
       )}
 
       <AddTransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAdd={handleAddTransaction}
+        onAdd={fetchTransactions}
+        editingData={editingTransaction}
         dark={dark}
       />
     </div>
   );
-}
+};
+
+export default Transactions;

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const paymentMethods = [
-  { value: "0", label: "Cash" },
-  { value: "1", label: "eSewa" },
-  { value: "2", label: "Khalti" },
-  { value: "3", label: "Mobile Banking" },
-];
-
-export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
+export default function AddTransactionModal({
+  isOpen,
+  onClose,
+  onAdd,
+  editingData,
+  dark,
+}) {
   const [categories, setCategories] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]); // ✅ moved here
   const [formData, setFormData] = useState({
     name: "",
     type: "EXPENSE",
@@ -22,30 +22,89 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
 
   useEffect(() => {
     if (isOpen) {
+      if (editingData) {
+        setFormData({
+          name: editingData.name || "",
+          type: editingData.type || "EXPENSE",
+          categoryId: (() => {
+            const id =
+              editingData.categoryId ??
+              editingData.CategoryId ??
+              editingData.category_id;
+            console.log("editingData full object:", editingData); // see exact field names
+            console.log("resolved categoryId:", id);
+            return id?.toString() || "";
+          })(),
+          amount: editingData.amount?.toString() || "",
+          source: editingData.source || "",
+          method: (() => {
+            const raw = editingData.method ?? editingData.Method ?? 0;
+            if (typeof raw === "number") return raw.toString();
+            const idx = paymentMethods.findIndex(
+              (m) => m.label.toLowerCase() === raw.toLowerCase(),
+            );
+            return (idx >= 0 ? idx : 0).toString();
+          })(),
+          date: editingData.date
+            ? editingData.date.split("T")[0]
+            : new Date().toISOString().split("T")[0],
+        });
+      } else {
+        setFormData({
+          name: "",
+          type: "EXPENSE",
+          categoryId: "",
+          amount: "",
+          source: "",
+          method: "0",
+          date: new Date().toISOString().split("T")[0],
+        });
+      }
+
+      // Fetch categories
       fetch("https://localhost:7197/api/Category")
         .then((res) => res.json())
         .then((data) => {
           setCategories(data);
-          if (data.length > 0) {
-            setFormData((prev) => ({
-              ...prev,
-              categoryId: data[0].id.toString(),
-            }));
-          }
+          setFormData((prev) => ({
+            ...prev,
+            categoryId: prev.categoryId || data[0]?.id.toString() || "",
+          }));
         })
         .catch((err) => console.error("Error loading categories:", err));
+
+      // Fetch payment methods dynamically from enum endpoint
+      fetch("https://localhost:7197/api/enums/transaction-methods")
+        .then((res) => res.json())
+        .then((data) => setPaymentMethods(data))
+        .catch((err) => console.error("Error loading methods:", err));
     }
-  }, [isOpen]);
+  }, [isOpen, editingData]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.amount || !formData.categoryId) return;
 
-    // 2. Decide which Controller to talk to
-    const controllerName = formData.type === "INCOME" ? "Income" : "Expense";
-    const url = `https://localhost:7197/api/${controllerName}`;
+    // Visible guard — tells you exactly what's missing
+    if (!formData.name || !formData.amount || !formData.categoryId) {
+      console.warn("Submit blocked:", {
+        name: formData.name,
+        amount: formData.amount,
+        categoryId: formData.categoryId,
+      });
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    // Lock controller to original type so PUT hits the right table
+    const originalType = editingData?.type ?? formData.type;
+    const controllerName = originalType === "INCOME" ? "Income" : "Expense";
+    const isEditing = !!editingData;
+    const recordId = editingData?.id ?? editingData?.Id;
+    const url = isEditing
+      ? `https://localhost:7197/api/${controllerName}/${recordId}`
+      : `https://localhost:7197/api/${controllerName}`;
 
     const payload = {
       name: formData.name,
@@ -56,19 +115,22 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
       date: new Date(formData.date).toISOString(),
     };
 
+    console.log(`[${isEditing ? "PUT" : "POST"}]`, url, payload); // debug log
+
     try {
       const response = await fetch(url, {
-        method: "POST",
+        method: isEditing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        onAdd(); // Refresh the list
+        onAdd();
         onClose();
       } else {
         const err = await response.json();
         console.error("Server error:", err);
+        alert(`Server error: ${JSON.stringify(err)}`);
       }
     } catch (err) {
       console.error("Save failed:", err);
@@ -84,8 +146,10 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
           className={`p-6 text-white flex justify-between items-center ${formData.type === "EXPENSE" ? "bg-red-600" : "bg-green-600"}`}
         >
           <div>
-            <h2 className="text-xl font-bold">New Transaction</h2>
-            <p className="text-white/80 text-xs mt-1">Record your live data</p>
+            <h2 className="text-xl font-bold">
+              {editingData ? "Edit Transaction" : "New Transaction"}
+            </h2>
+            <p className="text-white/80 text-xs mt-1">Record your data</p>
           </div>
           <button
             onClick={onClose}
@@ -99,20 +163,23 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
           onSubmit={handleSubmit}
           className="p-6 space-y-4 text-sm font-medium"
         >
+          {/* Type toggle — disabled during edit to prevent wrong-table PUT */}
           <div
             className={`flex p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-gray-100"}`}
           >
             <button
               type="button"
+              disabled={!!editingData}
               onClick={() => setFormData({ ...formData, type: "EXPENSE" })}
-              className={`flex-1 py-2 rounded-lg font-bold transition-all ${formData.type === "EXPENSE" ? "bg-white text-red-600 shadow-sm" : "text-gray-500"}`}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${formData.type === "EXPENSE" ? "bg-white text-red-600 shadow-sm" : "text-gray-500"}`}
             >
               Expense
             </button>
             <button
               type="button"
+              disabled={!!editingData}
               onClick={() => setFormData({ ...formData, type: "INCOME" })}
-              className={`flex-1 py-2 rounded-lg font-bold transition-all ${formData.type === "INCOME" ? "bg-white text-green-600 shadow-sm" : "text-gray-500"}`}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${formData.type === "INCOME" ? "bg-white text-green-600 shadow-sm" : "text-gray-500"}`}
             >
               Income
             </button>
@@ -148,7 +215,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
                 required
               >
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
+                  <option key={cat.id} value={cat.id.toString()}>
                     {cat.name}
                   </option>
                 ))}
@@ -205,6 +272,7 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
               />
             </div>
           </div>
+
           <div>
             <label className="block text-gray-500 mb-1 px-1 text-xs">
               Date
@@ -224,7 +292,11 @@ export default function AddTransactionModal({ isOpen, onClose, onAdd, dark }) {
             type="submit"
             className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg mt-2 transition-all active:scale-95 ${formData.type === "EXPENSE" ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
           >
-            {formData.type === "EXPENSE" ? "Save Expense" : "Save Income"}
+            {editingData
+              ? `Update ${formData.type === "EXPENSE" ? "Expense" : "Income"}`
+              : formData.type === "EXPENSE"
+                ? "Save Expense"
+                : "Save Income"}
           </button>
         </form>
       </div>

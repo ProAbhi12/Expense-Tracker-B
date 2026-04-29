@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -8,7 +9,6 @@ import {
   Tags,
   TrendingUp,
 } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
 
 const Sidebar = ({ isOpen }) => {
   const location = useLocation();
@@ -34,8 +34,8 @@ const Sidebar = ({ isOpen }) => {
         className={`flex items-center justify-between h-16 px-6 border-b ${dark ? "border-slate-800" : "border-gray-100"}`}
       >
         <div className="flex items-center space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
-          <div className="shrink-0 w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <TrendingUp className="text-white" size={18} />
+          <div className="shrink-0 w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white">
+            <TrendingUp size={18} />
           </div>
           <span
             className={`text-lg font-bold tracking-tight ${dark ? "text-slate-100" : "text-gray-800"}`}
@@ -65,16 +65,14 @@ const Sidebar = ({ isOpen }) => {
                 className={`mr-3 transition-colors ${isActive ? "text-white" : "group-hover:text-blue-500"}`}
                 size={18}
               />
-              <span className={`text-sm font-semibold`}>{item.name}</span>
+              <span className="text-sm font-semibold">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Settings Link */}
-      {/* <div
-        className={`absolute bottom-0 w-full p-4 border-t ${dark ? "border-slate-800" : "border-gray-100"}`}
-      >
+      {/* <div className={`absolute bottom-0 w-full p-4 border-t ${dark ? "border-slate-800" : "border-gray-100"}`}>
         <Link
           to="/settings"
           className={`flex items-center px-4 py-2 rounded-xl transition-all ${

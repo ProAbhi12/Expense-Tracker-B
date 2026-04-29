@@ -28,7 +28,6 @@ import { Link } from "react-router-dom";
 const Dashboard = () => {
   const { dark } = useTheme();
 
-  // 1. DATA CONTAINERS
   const [summary, setSummary] = useState({
     totalBalance: 0,
     totalIncome: 0,
@@ -40,7 +39,6 @@ const Dashboard = () => {
   const [lineData, setLineData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 2. FETCH ALL DATA
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -53,33 +51,32 @@ const Dashboard = () => {
       const pieJson = await pieRes.json();
       setPieData(
         pieJson
-          .filter((i) => i.amount > 0)
-          .map((i) => ({
-            name: i.categoryName,
-            value: i.amount,
-            color: i.color,
+          .filter((item) => item.amount > 0)
+          .map((item) => ({
+            name: item.categoryName,
+            value: item.amount,
+            color: item.color,
           })),
       );
 
       const lineRes = await fetch(`${baseUrl}/Reports/line-graph`);
       const lineJson = await lineRes.json();
       setLineData(
-        lineJson.map((i) => ({
-          date: new Date(i.date).toLocaleDateString("en-US", {
+        lineJson.map((item) => ({
+          date: new Date(item.date).toLocaleDateString("en-US", {
             weekday: "short",
           }),
-          amount: i.amount,
+          amount: item.amount,
         })),
       );
 
       const historyRes = await fetch(`${baseUrl}/Transactions/alltransactions`);
       const historyJson = await historyRes.json();
-      // Map correctly to use 'type' string comparison
       setRecentTransactions(
         Array.isArray(historyJson) ? historyJson.slice(0, 5) : [],
       );
     } catch (error) {
-      console.error("Connection Error:", error);
+      console.error("Database Connection Error:", error);
     } finally {
       setLoading(false);
     }
@@ -92,43 +89,50 @@ const Dashboard = () => {
   const formatRs = (num) => `Rs. ${num.toLocaleString()}`;
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1
-          className={`text-2xl font-bold ${dark ? "text-white" : "text-gray-800"}`}
-        >
-          Dashboard Overview{" "}
-        </h1>
+    <div className="space-y-6 pb-20 text-black">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1
+            className={`text-2xl font-bold ${dark ? "text-white" : "text-black"}`}
+          >
+            Dashboard Overview
+          </h1>
+        </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-blue-600 p-6 rounded-2xl text-white shadow-xl shadow-blue-600/20">
-          <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">
-            Total Balance
-          </p>
+        <div className="bg-blue-600 p-6 rounded-2xl text-white shadow-xl shadow-blue-600/30">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">
+              Total Balance
+            </p>
+            <Wallet size={20} className="text-white opacity-80" />
+          </div>
           <h3 className="text-3xl font-black">
             {formatRs(summary.totalBalance)}
           </h3>
-          <p className="mt-4 text-[10px] bg-white/20 inline-block px-2 py-1 rounded">
-            {summary.transactionCount} Entries Found
-          </p>
+          <div className="mt-4 flex items-center gap-1.5">
+            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold uppercase">
+              {summary.transactionCount} Total Entries
+            </span>
+          </div>
         </div>
+
         <div
           className={`p-6 rounded-2xl border ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
-          <p className="text-gray-400 text-xs font-bold uppercase mb-1">
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">
             Monthly Income
           </p>
           <h3 className="text-2xl font-black text-green-500">
             {formatRs(summary.totalIncome)}
           </h3>
         </div>
+
         <div
           className={`p-6 rounded-2xl border ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
-          <p className="text-gray-400 text-xs font-bold uppercase mb-1">
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">
             Monthly Expenses
           </p>
           <h3 className="text-2xl font-black text-red-500">
@@ -137,58 +141,71 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div
           className={`p-6 rounded-2xl border ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
-          <h3 className="font-bold mb-6 flex items-center gap-2 text-sm uppercase opacity-70">
+          <h3 className="font-bold mb-6 flex items-center gap-2 text-sm uppercase tracking-wider opacity-70">
             <PieIcon size={16} className="text-blue-500" /> Expense Breakdown
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
                   innerRadius={60}
-                  outerRadius={85}
+                  outerRadius={90}
                   paddingAngle={5}
                   dataKey="value"
                   label={({ name, percent }) =>
                     `${name} ${(percent * 100).toFixed(0)}%`
                   }
+                  fontSize={10}
                 >
-                  {pieData.map((e, i) => (
-                    <Cell key={i} fill={e.color} />
+                  {pieData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => formatRs(value)} />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
+
         <div
           className={`p-6 rounded-2xl border ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
         >
-          <h3 className="font-bold mb-6 flex items-center gap-2 text-sm uppercase opacity-70">
+          <h3 className="font-bold mb-6 flex items-center gap-2 text-sm uppercase tracking-wider opacity-70">
             <Activity size={16} className="text-green-500" /> Spending Trend
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
                   stroke={dark ? "#334155" : "#f3f4f6"}
                 />
-                <XAxis dataKey="date" stroke="#9ca3af" fontSize={10} />
-                <YAxis stroke="#9ca3af" fontSize={10} />
-                <Tooltip />
+                <XAxis
+                  dataKey="date"
+                  stroke="#9ca3af"
+                  fontSize={10}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="#9ca3af"
+                  fontSize={10}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip formatter={(value) => formatRs(value)} />
                 <Line
                   type="monotone"
                   dataKey="amount"
                   stroke="#3b82f6"
-                  strokeWidth={4}
+                  strokeWidth={3}
                   dot={{ r: 4 }}
                 />
               </LineChart>
@@ -197,11 +214,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* RECENT ACTIVITY SECTION */}
       <div
         className={`rounded-2xl border overflow-hidden ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
       >
-        <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center">
+        <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center text-black dark:text-white">
           <h3 className="font-bold flex items-center gap-2 text-sm uppercase opacity-70">
             <History size={16} className="text-orange-500" /> Recent Activity
           </h3>
@@ -209,14 +225,14 @@ const Dashboard = () => {
             to="/transactions"
             className="text-blue-600 text-xs font-bold hover:underline flex items-center gap-1"
           >
-            View All History <ArrowRight size={14} />
+            View All <ArrowRight size={14} />
           </Link>
         </div>
         <div className="divide-y divide-gray-50 dark:divide-slate-800">
           {recentTransactions.map((t) => (
             <div
               key={t.id}
-              className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+              className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-black dark:text-white"
             >
               <div className="flex items-center gap-3">
                 <div
@@ -226,7 +242,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-xs font-bold">{t.name}</p>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-[10px] opacity-60">
                     {t.categoryName} • {new Date(t.date).toLocaleDateString()}
                   </p>
                 </div>
@@ -237,17 +253,9 @@ const Dashboard = () => {
                 >
                   {t.type === "INCOME" ? "+" : "-"} Rs. {t.amount}
                 </p>
-                <p className="text-[9px] text-gray-400 uppercase font-medium">
-                  {t.method}
-                </p>
               </div>
             </div>
           ))}
-          {recentTransactions.length === 0 && (
-            <div className="p-10 text-center text-gray-400 text-xs italic font-medium">
-              No transactions found in SQL database.
-            </div>
-          )}
         </div>
       </div>
     </div>
