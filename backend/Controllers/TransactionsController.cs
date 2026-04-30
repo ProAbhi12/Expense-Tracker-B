@@ -40,7 +40,6 @@ namespace backend.Controllers
             return Ok(transactions);
         }
 
-        // --- ADDED: POST method to save new transactions ---
         [HttpPost("add")]
         public async Task<IActionResult> AddTransaction([FromBody] AddTransactionDto dto)
         {

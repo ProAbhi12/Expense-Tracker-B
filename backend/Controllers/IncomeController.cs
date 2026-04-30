@@ -1,5 +1,5 @@
 using backend.Data;
-using backend.DTOs; // This fixes CS0246
+using backend.DTOs;
 using backend.Models;
 using backend.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +45,36 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(transaction);
+        }
+
+        // --- NEW: DYNAMIC PUT (EDIT) ---
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutIncome(int id, [FromBody] AddTransactionDto dto)
+        {
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null) return NotFound();
+
+            transaction.Name = dto.Name;
+            transaction.Amount = dto.Amount;
+            transaction.CategoryId = dto.CategoryId;
+            transaction.Source = dto.Source;
+            transaction.Method = dto.Method;
+            transaction.Date = dto.Date;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // --- NEW: DYNAMIC DELETE ---
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteIncome(int id)
+        {
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null) return NotFound();
+
+            _context.Transactions.Remove(transaction);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
