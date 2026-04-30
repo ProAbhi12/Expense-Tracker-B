@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 export default function AddTransactionModal({
@@ -9,7 +9,7 @@ export default function AddTransactionModal({
   dark,
 }) {
   const [categories, setCategories] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]); // ✅ moved here
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     type: "EXPENSE",
@@ -20,84 +20,168 @@ export default function AddTransactionModal({
     date: new Date().toISOString().split("T")[0],
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      if (editingData) {
-        setFormData({
-          name: editingData.name || "",
-          type: editingData.type || "EXPENSE",
-          categoryId: (() => {
-            const id =
-              editingData.categoryId ??
-              editingData.CategoryId ??
-              editingData.category_id;
-            console.log("editingData full object:", editingData); // see exact field names
-            console.log("resolved categoryId:", id);
-            return id?.toString() || "";
-          })(),
-          amount: editingData.amount?.toString() || "",
-          source: editingData.source || "",
-          method: (() => {
-            const raw = editingData.method ?? editingData.Method ?? 0;
-            if (typeof raw === "number") return raw.toString();
-            const idx = paymentMethods.findIndex(
-              (m) => m.label.toLowerCase() === raw.toLowerCase(),
-            );
-            return (idx >= 0 ? idx : 0).toString();
-          })(),
-          date: editingData.date
-            ? editingData.date.split("T")[0]
-            : new Date().toISOString().split("T")[0],
-        });
-      } else {
-        setFormData({
-          name: "",
-          type: "EXPENSE",
-          categoryId: "",
-          amount: "",
-          source: "",
-          method: "0",
-          date: new Date().toISOString().split("T")[0],
-        });
-      }
+  // Track if we've already loaded data for this edit session
+  const hasInitializedRef = useRef(false);
 
-      // Fetch categories
-      fetch("https://localhost:7197/api/Category")
-        .then((res) => res.json())
-        .then((data) => {
-          setCategories(data);
-          setFormData((prev) => ({
-            ...prev,
-            categoryId: prev.categoryId || data[0]?.id.toString() || "",
-          }));
-        })
-        .catch((err) => console.error("Error loading categories:", err));
+  // Helper: Extract categoryId - handles ALL possible API formats
+  const extractCategoryId = (data) => {
+    if (!data) return "";
+    // Try all possible property names
+    const id =
+      data.categoryId ??
+      data.CategoryId ??
+      data.category_id ??
+      data.categoryId?.toString() ??
+      data.category?.id ??
+      data.Category?.Id;
 
-      // Fetch payment methods dynamically from enum endpoint
-      fetch("https://localhost:7197/api/enums/transaction-methods")
-        .then((res) => res.json())
-        .then((data) => setPaymentMethods(data))
-        .catch((err) => console.error("Error loading methods:", err));
+    // Convert to string and clean
+    const result = id?.toString()?.trim();
+    return result && result !== "undefined" ? result : "";
+  };
+
+  // Helper: Extract method
+  const extractMethod = (data, methods) => {
+    const raw = data?.method ?? data?.Method ?? data?.paymentMethod ?? 0;
+    if (typeof raw === "number") return String(raw);
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      // Try matching by label, value, or name
+      const idx = methods.findIndex(
+        (m) =>
+          String(m.label)?.toLowerCase() === trimmed.toLowerCase() ||
+          String(m.value)?.toLowerCase() === trimmed.toLowerCase() ||
+          String(m.id)?.toLowerCase() === trimmed.toLowerCase(),
+      );
+      return idx >= 0 ? String(methods[idx].value ?? methods[idx].id) : "0";
     }
-  }, [isOpen, editingData]);
+    return "0";
+  };
+
+  // Fetch dropdown data once when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        const [catRes, methodRes] = await Promise.all([
+          fetch("https://localhost:7197/api/Category"),
+          fetch("https://localhost:7197/api/enums/transaction-methods"),
+        ]);
+
+        if (!isMounted) return;
+
+        const catData = await catRes.json();
+        const methodData = await methodRes.json();
+
+        setCategories(Array.isArray(catData) ? catData : []);
+        setPaymentMethods(Array.isArray(methodData) ? methodData : []);
+      } catch (err) {
+        console.error("Failed to load dropdown data:", err);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
+
+  // Update form when editingData changes AND data is ready
+  useEffect(() => {
+    if (!isOpen) {
+      hasInitializedRef.current = false;
+      return;
+    }
+
+    // Reset initialization flag when switching between edit/new
+    if (!editingData) {
+      hasInitializedRef.current = false;
+    }
+
+    // Only initialize once per edit session
+    if (editingData && !hasInitializedRef.current) {
+      // Wait for categories to load before setting form
+      if (categories.length === 0) return;
+
+      const rawCategoryId = extractCategoryId(editingData);
+
+      // Find matching category (with type-safe comparison)
+      const matchedCategory = categories.find(
+        (cat) => String(cat.id) === String(rawCategoryId),
+      );
+
+      // Fallback: try matching by name if ID doesn't work
+      const fallbackCategory =
+        !matchedCategory && editingData.categoryName
+          ? categories.find(
+              (cat) =>
+                cat.name?.toLowerCase() ===
+                editingData.categoryName.toLowerCase(),
+            )
+          : null;
+
+      const finalCategoryId = matchedCategory
+        ? String(matchedCategory.id)
+        : fallbackCategory
+          ? String(fallbackCategory.id)
+          : rawCategoryId || categories[0]?.id?.toString() || "";
+
+      setFormData({
+        name: editingData.name || "",
+        type: editingData.type || "EXPENSE",
+        categoryId: finalCategoryId, // 👈 Always string
+        amount: editingData.amount?.toString() || "",
+        source: editingData.source || "",
+        method: extractMethod(editingData, paymentMethods),
+        date: editingData.date
+          ? editingData.date.split("T")[0]
+          : new Date().toISOString().split("T")[0],
+      });
+
+      hasInitializedRef.current = true;
+
+      console.log("✅ Form initialized with categoryId:", finalCategoryId);
+    }
+
+    // For NEW transactions (no editingData)
+    if (!editingData && categories.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryId: prev.categoryId || categories[0]?.id?.toString() || "",
+      }));
+    }
+  }, [isOpen, editingData, categories, paymentMethods]);
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: "",
+        type: "EXPENSE",
+        categoryId: "",
+        amount: "",
+        source: "",
+        method: "0",
+        date: new Date().toISOString().split("T")[0],
+      });
+      hasInitializedRef.current = false;
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Visible guard — tells you exactly what's missing
     if (!formData.name || !formData.amount || !formData.categoryId) {
-      console.warn("Submit blocked:", {
-        name: formData.name,
-        amount: formData.amount,
-        categoryId: formData.categoryId,
-      });
       alert("Please fill in all required fields.");
       return;
     }
 
-    // Lock controller to original type so PUT hits the right table
     const originalType = editingData?.type ?? formData.type;
     const controllerName = originalType === "INCOME" ? "Income" : "Expense";
     const isEditing = !!editingData;
@@ -109,13 +193,11 @@ export default function AddTransactionModal({
     const payload = {
       name: formData.name,
       amount: parseFloat(formData.amount),
-      categoryId: parseInt(formData.categoryId),
+      categoryId: parseInt(formData.categoryId), // Convert back to int for API
       source: formData.source || "General",
       method: parseInt(formData.method),
       date: new Date(formData.date).toISOString(),
     };
-
-    console.log(`[${isEditing ? "PUT" : "POST"}]`, url, payload); // debug log
 
     try {
       const response = await fetch(url, {
@@ -130,10 +212,11 @@ export default function AddTransactionModal({
       } else {
         const err = await response.json();
         console.error("Server error:", err);
-        alert(`Server error: ${JSON.stringify(err)}`);
+        alert(`Error: ${err.message || JSON.stringify(err)}`);
       }
     } catch (err) {
       console.error("Save failed:", err);
+      alert("Failed to save. Check console for details.");
     }
   };
 
@@ -163,7 +246,7 @@ export default function AddTransactionModal({
           onSubmit={handleSubmit}
           className="p-6 space-y-4 text-sm font-medium"
         >
-          {/* Type toggle — disabled during edit to prevent wrong-table PUT */}
+          {/* Type toggle */}
           <div
             className={`flex p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-gray-100"}`}
           >
@@ -207,18 +290,24 @@ export default function AddTransactionModal({
                 Category
               </label>
               <select
-                value={formData.categoryId}
+                value={String(formData.categoryId || "")} // 👈 CRITICAL: Force string
                 onChange={(e) =>
                   setFormData({ ...formData, categoryId: e.target.value })
                 }
                 className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700 text-white" : "border-gray-200"}`}
                 required
               >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id.toString()}>
-                    {cat.name}
-                  </option>
-                ))}
+                {categories.length === 0 ? (
+                  <option value="">Loading...</option>
+                ) : (
+                  categories.map((cat) => (
+                    <option key={cat.id} value={String(cat.id)}>
+                      {" "}
+                      {/* 👈 String value */}
+                      {cat.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
             <div>
@@ -244,17 +333,24 @@ export default function AddTransactionModal({
                 Method
               </label>
               <select
-                value={formData.method}
+                value={String(formData.method || "0")}
                 onChange={(e) =>
                   setFormData({ ...formData, method: e.target.value })
                 }
                 className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700 text-white" : "border-gray-200"}`}
               >
-                {paymentMethods.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
+                {paymentMethods.length === 0 ? (
+                  <option value="0">Loading...</option>
+                ) : (
+                  paymentMethods.map((m) => (
+                    <option
+                      key={m.value ?? m.id}
+                      value={String(m.value ?? m.id)}
+                    >
+                      {m.label ?? m.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
             <div>

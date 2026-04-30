@@ -80,7 +80,6 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
       const url = editingCategory
         ? `https://localhost:7197/api/Category/${editingCategory.id}`
         : "https://localhost:7197/api/Category";
-
       const method = editingCategory ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -110,27 +109,27 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
       onClick={onClose}
     >
       <div
-        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-200 text-gray-800"}`}
+        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-200 text-gray-900"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center">
-          <h2 className="text-xl font-bold">
+        <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             {editingCategory ? "Edit Category" : "New Category"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <X size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase mb-1">
               Category Name
             </label>
             <input
-              className={`w-full p-2.5 border rounded-xl outline-none ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+              className={`w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="e.g. Groceries"
@@ -141,11 +140,11 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase mb-1">
                 Type
               </label>
               <select
-                className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+                className={`w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
                 disabled={editingCategory?.isDefault}
@@ -155,11 +154,11 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase mb-1">
                 Budget Limit
               </label>
               <input
-                className={`w-full p-2.5 border rounded-xl ${dark ? "bg-slate-800 border-slate-700" : ""}`}
+                className={`w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 ${dark ? "bg-slate-800 border-slate-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                 value={form.budget}
                 onChange={(e) => setForm({ ...form, budget: e.target.value })}
                 placeholder="3000"
@@ -169,17 +168,18 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase mb-2">
               Category Color
             </label>
-            <div className="flex flex-wrap gap-2 p-3 border rounded-xl dark:border-slate-800">
+            <div className="flex flex-wrap gap-2 p-3 border rounded-xl dark:border-slate-700">
               {COLOR_SWATCHES.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setForm({ ...form, color: c })}
-                  className={`h-7 w-7 rounded-full border-2 transition-all ${form.color === c ? "border-blue-500 scale-110 shadow-lg" : "border-transparent opacity-50"}`}
+                  className={`h-7 w-7 rounded-full border-2 transition-all ${form.color === c ? "border-blue-500 scale-110 shadow-md" : "border-transparent opacity-60 hover:opacity-100"}`}
                   style={{ background: c }}
+                  title={c}
                 />
               ))}
             </div>
@@ -187,7 +187,7 @@ const CategoryModal = ({ onClose, onRefresh, editingCategory = null }) => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition-colors"
           >
             Save Changes
           </button>
@@ -208,7 +208,7 @@ const BudgetCard = ({ category, onEdit, onDelete }) => {
 
   return (
     <div
-      className={`group rounded-2xl border p-5 transition-all hover:shadow-md ${dark ? "border-slate-800 bg-slate-900" : "bg-white border-gray-100 shadow-sm"}`}
+      className={`group rounded-2xl border p-5 transition-all hover:shadow-md ${dark ? "border-slate-700 bg-slate-800" : "bg-white border-gray-200 shadow-sm"}`}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -222,8 +222,10 @@ const BudgetCard = ({ category, onEdit, onDelete }) => {
             <Icon size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-sm">{category.name}</h3>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+            <h3 className={`font-bold text-sm ${dark ? "text-white" : "text-gray-900"}`}>
+              {category.name}
+            </h3>
+            <p className={`text-[10px] font-medium uppercase tracking-wide ${dark ? "text-slate-300" : "text-gray-600"}`}>
               Limit: {formatCurrency(category.budget)}
             </p>
           </div>
@@ -231,44 +233,47 @@ const BudgetCard = ({ category, onEdit, onDelete }) => {
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(category)}
-            className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+            className={`p-2 transition-colors ${dark ? "text-slate-400 hover:text-blue-400" : "text-gray-500 hover:text-blue-600"}`}
           >
             <Edit2 size={14} />
           </button>
           {!category.isDefault && (
             <button
               onClick={() => onDelete(category.id)}
-              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+              className={`p-2 transition-colors ${dark ? "text-slate-400 hover:text-red-400" : "text-gray-500 hover:text-red-600"}`}
             >
               <Trash2 size={14} />
             </button>
           )}
         </div>
       </div>
+
+      {/* Progress Bar */}
       <div
-        className={`h-2.5 w-full rounded-full overflow-hidden ${dark ? "bg-slate-800" : "bg-gray-100"}`}
+        className={`h-2.5 w-full rounded-full overflow-hidden ${dark ? "bg-slate-700" : "bg-gray-200"}`}
       >
         <div
-          className="h-full transition-all duration-1000 ease-out rounded-full"
+          className="h-full transition-all duration-500 ease-out rounded-full"
           style={{
             width: `${percentage}%`,
             background: spent > category.budget ? "#ef4444" : category.color,
           }}
         />
       </div>
-      <div className="flex justify-between mt-3 text-[10px] font-black uppercase tracking-tighter">
-        <span className="text-gray-400">
-          {Math.round(percentage)}% of limit used
+
+      <div className="flex justify-between mt-3 text-[10px] font-medium uppercase tracking-wide">
+        <span className={dark ? "text-slate-200" : "text-gray-700"}>
+          {Math.round(percentage)}% used
         </span>
         <span
           className={
             spent > category.budget
-              ? "text-red-500 animate-pulse"
-              : "text-green-600"
+              ? `font-semibold ${dark ? "text-red-400" : "text-red-600"}`
+              : `font-semibold ${dark ? "text-green-400" : "text-green-600"}`
           }
         >
           {spent > category.budget
-            ? "Over Limit!"
+            ? "Over limit"
             : `${formatCurrency(remaining)} left`}
         </span>
       </div>
@@ -314,84 +319,150 @@ const Budgets = () => {
   }));
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2
-            className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}
-          >
-            Categories with Budget
-          </h2>
-          <p className="text-xs text-gray-500 mt-1 font-medium">
-            Control your monthly limits per category.
-          </p>
-        </div>
-        <button
-          onClick={() => setModal({ open: true, data: null })}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/20"
-        >
-          + New Category
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {loading ? (
-          <div className="col-span-full p-20 text-center text-gray-400 italic">
-            Syncing with SQL Server...
+    <div
+      className={`space-y-6 pb-20 ${dark ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-800"}`}
+    >
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1
+              className={`text-3xl font-bold ${dark ? "text-white" : "text-gray-800"}`}
+            >
+              Categories with Budget{" "}
+            </h1>
+            <p
+              className={`text-sm mt-1 font-medium ${dark ? "text-slate-300" : "text-gray-600"}`}
+            >
+              Control your monthly limits per category
+            </p>
           </div>
-        ) : (
-          budgets.map((b) => (
-            <BudgetCard
-              key={b.id}
-              category={b}
-              onEdit={(d) => setModal({ open: true, data: d })}
-              onDelete={deleteCategory}
-            />
-          ))
+          <button
+            onClick={() => setModal({ open: true, data: null })}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition-colors"
+          >
+            + New Category
+          </button>
+        </div>
+
+        {/* Budget Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {loading ? (
+            <div
+              className={`col-span-full p-12 text-center rounded-xl border ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"}`}
+            >
+              <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent mb-2"></div>
+              <p
+                className={`text-sm ${dark ? "text-slate-300" : "text-gray-600"}`}
+              >
+                Loading categories...
+              </p>
+            </div>
+          ) : budgets.length === 0 ? (
+            <div
+              className={`col-span-full p-12 text-center rounded-xl border ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"}`}
+            >
+              <p
+                className={`text-sm ${dark ? "text-slate-300" : "text-gray-600"}`}
+              >
+                No categories yet
+              </p>
+              <button
+                onClick={() => setModal({ open: true, data: null })}
+                className="text-blue-600 dark:text-blue-400 text-sm font-medium mt-2 hover:underline"
+              >
+                Create your first category →
+              </button>
+            </div>
+          ) : (
+            budgets.map((b) => (
+              <BudgetCard
+                key={b.id}
+                category={b}
+                onEdit={(d) => setModal({ open: true, data: d })}
+                onDelete={deleteCategory}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Budget Overview Chart */}
+        {!loading && budgets.length > 0 && (
+          <div
+            className={`rounded-xl border p-4 ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200 shadow-sm"}`}
+          >
+            <h3
+              className={`font-semibold mb-4 text-sm uppercase tracking-wide flex items-center gap-2 ${dark ? "text-white" : "text-gray-900"}`}
+            >
+              <PieIcon size={16} className="text-blue-500" /> Budget
+              Distribution
+            </h3>
+            <div className="h-80 lg:h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={4}
+                    dataKey="value"
+                    minAngle={15}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                    labelLine={true}
+                    fontSize={11}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        stroke={dark ? "#1e293b" : "#fff"}
+                        strokeWidth={2}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={{
+                      fontSize: "12px",
+                      borderRadius: "12px",
+                      backgroundColor: dark ? "#1e293b" : "#fff",
+                      borderColor: dark ? "#334155" : "#e5e7eb",
+                      color: dark ? "#fff" : "#111",
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    wrapperStyle={{ 
+                      fontSize: "11px",
+                      paddingTop: "20px"
+                    }}
+                    formatter={(value) => (
+                      <span
+                        className={`${dark ? "text-slate-200" : "text-gray-700"}`}
+                      >
+                        {value}
+                      </span>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Modal */}
+        {modal.open && (
+          <CategoryModal
+            onClose={() => setModal({ open: false, data: null })}
+            onRefresh={loadData}
+            editingCategory={modal.data}
+          />
         )}
       </div>
-
-      {/* Budget Overview (Charts) */}
-      {!loading && budgets.length > 0 && (
-        <div
-          className={`rounded-2xl border p-6 ${dark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-gray-100 shadow-sm"}`}
-        >
-          <h3 className="font-bold mb-6 text-sm uppercase tracking-widest opacity-60 flex items-center gap-2">
-            <PieIcon size={16} className="text-blue-500" /> Budget Distribution
-          </h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) => `Rs. ${value.toLocaleString()}`}
-                />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {modal.open && (
-        <CategoryModal
-          onClose={() => setModal({ open: false, data: null })}
-          onRefresh={loadData}
-          editingCategory={modal.data}
-        />
-      )}
     </div>
   );
 };
